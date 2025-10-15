@@ -295,7 +295,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       <View style={styles.galleryPreviewContainer}>
         <View style={styles.galleryPreviewHeader}>
           <Text style={styles.sectionTitle}>Restaurant Gallery</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => setActiveScreen('gallery')}
           >
@@ -303,7 +303,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="chevron-forward" size={16} color="#0557ef" />
           </TouchableOpacity>
         </View>
-        
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.galleryPreviewRow}>
             {galleryImages.map((item) => (
@@ -691,8 +691,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
             </View>
           </View>
         </Modal>
-      </SafeAreaView>
-    </LinearGradient>
+      </SafeAreaView >
+    </LinearGradient >
   );
 };
 
@@ -804,21 +804,22 @@ const styles = StyleSheet.create({
   categoryRow: { flexDirection: 'row', marginBottom: 16 },
   categoryOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
   selectedCategory: { backgroundColor: '#0557ef' },
-  categoryOptionText: { fontSize: 14, fontWeight: '500', color: '#666' },
-  selectedCategoryText: { color: '#fff' },
+  categoryOptionText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
+  selectedCategoryText: { color: '#fff', fontSize: 12 }, // Smaller font size
   spiceLevelContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
   spiceLevelOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
   selectedSpiceLevel: { backgroundColor: '#f0101b' },
-  spiceLevelText: { fontSize: 14, fontWeight: '500', color: '#666' },
-  selectedSpiceLevelText: { color: '#fff' },
+  spiceLevelText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
+  selectedSpiceLevelText: { color: '#fff', fontSize: 12 }, // Smaller font size
   saveButton: { backgroundColor: '#06D6A0', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 8 },
   saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
 
   // Filter Modal Styles
   filterOption: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f8f9fa', marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#e0e0e0' },
   activeFilterOption: { backgroundColor: '#0557ef', borderColor: '#0557ef' },
-  filterOptionText: { fontSize: 14, fontWeight: '500', color: '#666' },
-  activeFilterOptionText: { color: '#fff' },
+  filterOptionText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
+  activeFilterOptionText: { color: '#fff', fontSize: 12 }, // Smaller font size
   availabilityFilterRow: { flexDirection: 'row', marginBottom: 16 },
   filterActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
   resetButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginRight: 8, borderWidth: 1, borderColor: '#e0e0e0' },

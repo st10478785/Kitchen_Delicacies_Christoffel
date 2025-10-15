@@ -94,7 +94,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
                     />
                     <Text style={styles.brand}>Kitchen Delicacies</Text>
                     <Text style={styles.subtitle}>Empowering Culinary Excellence</Text>
-                    <Text style={styles.subtitle}></Text>
+                    <Text style={styles.subtitle}>Chef Christoffel </Text>
                 </Animated.View>
 
                 {/* Login form section */}
@@ -124,6 +124,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
                     >
                         <Text style={styles.guestButtonText}>Continue as Guest</Text>
                     </TouchableOpacity>
+                    <Text style={styles.error}>The Password is: 2004</Text>
                 </View>
             </SafeAreaView>
         </LinearGradient>
