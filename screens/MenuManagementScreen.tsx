@@ -1,23 +1,12 @@
 // MenuManagementScreen.tsx - Comprehensive Menu Management
 import React, { useState, useMemo } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    SafeAreaView,
-    FlatList,
-    TouchableOpacity,
-    TextInput,
-    Modal,
-    Alert,
-    ScrollView,
-    Pressable,
-    Switch
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, TextInput, Modal, Alert, ScrollView, Pressable, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-type Category = "Starter" | "Main" | "Dessert" | "Drink" | "Special";
+/* Menu Management Interfaces
+  Defines the structure for menu items and categories */
+type Category = "Starter" | "Main" | "Dessert" | "Drink";
 
 interface MenuItem {
     id: string;
@@ -35,58 +24,42 @@ interface MenuItem {
     imageUrl?: string;
 }
 
+/* Menu Management Screen Features:
+  Add, edit, delete menu items
+  Filter and search functionality
+  Detailed item management with additional attributes */
 const MenuManagementScreen: React.FC = () => {
+    // Menu items state with sample data
     const [menuItems, setMenuItems] = useState<MenuItem[]>([
         {
-            id: '1',
-            name: 'Tomato Soup',
-            description: 'Rich and creamy tomato soup with fresh herbs',
-            price: 55,
-            category: 'Starter',
-            available: true,
-            popularity: 4.5,
-            ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'],
-            dietaryTags: ['Vegetarian', 'Gluten-Free'],
-            preparationTime: 15,
-            calories: 120,
-            spiceLevel: 0
+            id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
+            ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0
         },
         {
-            id: '2',
-            name: 'Grilled Chicken',
-            description: 'Perfectly grilled chicken served with garlic butter sauce',
-            price: 120,
-            category: 'Main',
-            available: true,
-            popularity: 4.8,
-            ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'],
-            dietaryTags: [],
-            preparationTime: 25,
-            calories: 320,
-            spiceLevel: 1
+            id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
+            ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1
         },
         {
-            id: '3',
-            name: 'Chocolate Mousse',
-            description: 'Smooth and rich chocolate dessert',
-            price: 65,
-            category: 'Dessert',
-            available: false,
-            popularity: 4.7,
-            ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'],
-            dietaryTags: ['Vegetarian'],
-            preparationTime: 10,
-            calories: 280,
-            spiceLevel: 0
-        }
+            id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
+            ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0
+        },
+        {
+            id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
+            ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0
+        },
+        {
+            id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
+            ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2
+        },
     ]);
 
+    // UI state management
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
     const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Form state
+    // Form state for add/edit operations
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -100,10 +73,13 @@ const MenuManagementScreen: React.FC = () => {
         available: true
     });
 
-    const categories: Category[] = ["Starter", "Main", "Dessert", "Drink", "Special"];
+    // Available categories and dietary options
+    const categories: Category[] = ["Starter", "Main", "Dessert", "Drink",];
     const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free', 'Keto', 'Low-Carb'];
 
-    // Filter and search menu items
+    /* Filter and Search Functionality
+      Combines category filtering with text search
+      Uses useMemo for performance optimization */
     const filteredItems = useMemo(() => {
         return menuItems.filter(item => {
             const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
@@ -113,6 +89,8 @@ const MenuManagementScreen: React.FC = () => {
         });
     }, [menuItems, filterCategory, searchQuery]);
 
+    /* Form Management Functions
+      Handles form reset, opening modals, and saving items */
     const resetForm = () => {
         setFormData({
             name: '',
@@ -151,6 +129,8 @@ const MenuManagementScreen: React.FC = () => {
         setModalVisible(true);
     };
 
+    /* Save Item Function
+      Validates input and saves new or updated menu items */
     const handleSaveItem = () => {
         if (!formData.name || !formData.description || !formData.price) {
             Alert.alert('Error', 'Please fill in all required fields');
@@ -184,6 +164,8 @@ const MenuManagementScreen: React.FC = () => {
         resetForm();
     };
 
+    /* Item Management Functions
+      Toggle availability and delete items with confirmation */
     const toggleAvailability = (id: string) => {
         setMenuItems(prev => prev.map(item =>
             item.id === id ? { ...item, available: !item.available } : item
@@ -207,6 +189,8 @@ const MenuManagementScreen: React.FC = () => {
         );
     };
 
+    /* Menu Item Renderer
+      Renders individual menu items in the list */
     const renderMenuItem = ({ item }: { item: MenuItem }) => (
         <View style={styles.menuCard}>
             <View style={styles.cardHeader}>
@@ -293,13 +277,13 @@ const MenuManagementScreen: React.FC = () => {
     return (
         <LinearGradient colors={['#ffffff', '#f0f4ff']} style={styles.gradient}>
             <SafeAreaView style={styles.container}>
-                {/* Header */}
+                {/* Header Section */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Menu Management</Text>
                     <Text style={styles.subtitle}>Manage your restaurant menu items</Text>
                 </View>
 
-                {/* Controls */}
+                {/* Search and Filter Controls */}
                 <View style={styles.controls}>
                     <View style={styles.searchContainer}>
                         <Ionicons name="search" size={20} color="#666" />
@@ -334,7 +318,7 @@ const MenuManagementScreen: React.FC = () => {
                     </ScrollView>
                 </View>
 
-                {/* Menu Items List */}
+                {/* Menu Items List Section */}
                 <View style={styles.listContainer}>
                     <View style={styles.listHeader}>
                         <Text style={styles.sectionTitle}>
@@ -355,7 +339,7 @@ const MenuManagementScreen: React.FC = () => {
                     />
                 </View>
 
-                {/* Add/Edit Modal */}
+                {/* Add or Edit Modal */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -486,13 +470,17 @@ const MenuManagementScreen: React.FC = () => {
     );
 };
 
+// StyleSheet - Consolidated without duplicates
 const styles = StyleSheet.create({
+    // General Layout Styles
     gradient: {
         flex: 1,
     },
     container: {
         flex: 1,
     },
+
+    // Header Styles
     header: {
         padding: 20,
         backgroundColor: '#fff',
@@ -509,6 +497,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
+
+    // Control Section Styles
     controls: {
         padding: 16,
         backgroundColor: '#fff',
@@ -528,6 +518,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
+
+    // Filter Styles
     categoryFilter: {
         flexGrow: 0,
     },
@@ -552,6 +544,8 @@ const styles = StyleSheet.create({
     activeFilterText: {
         color: '#fff',
     },
+
+    // List Container Styles
     listContainer: {
         flex: 1,
         padding: 16,
@@ -583,6 +577,8 @@ const styles = StyleSheet.create({
     listContent: {
         paddingBottom: 20,
     },
+
+    // Menu Card Styles
     menuCard: {
         backgroundColor: '#fff',
         borderRadius: 12,
@@ -632,6 +628,8 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         lineHeight: 20,
     },
+
+    // Item Details Styles
     itemDetails: {
         marginBottom: 12,
     },
@@ -671,6 +669,8 @@ const styles = StyleSheet.create({
         color: '#2E7D32',
         fontWeight: '500',
     },
+
+    // Card Actions Styles
     cardActions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -699,6 +699,8 @@ const styles = StyleSheet.create({
         padding: 8,
         borderRadius: 6,
     },
+
+    // Modal Styles
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -727,6 +729,8 @@ const styles = StyleSheet.create({
     modalBody: {
         padding: 20,
     },
+
+    // Form Input Styles
     input: {
         backgroundColor: '#f8f9fa',
         borderWidth: 1,
@@ -746,6 +750,8 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 8,
     },
+
+    // Category Selection Styles
     categoryRow: {
         flexGrow: 0,
         marginBottom: 16,
@@ -771,6 +777,8 @@ const styles = StyleSheet.create({
     selectedCategoryText: {
         color: '#fff',
     },
+
+    // Spice Level Styles
     spiceLevelContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -798,6 +806,8 @@ const styles = StyleSheet.create({
     selectedSpiceLevelText: {
         color: '#fff',
     },
+
+    // Switch and Button Styles
     switchContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',

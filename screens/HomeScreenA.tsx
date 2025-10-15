@@ -1,7 +1,7 @@
 // HomeScreenA.tsx : Admin Screen 
 // Imports
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,18 +10,10 @@ import MenuManagementScreen from './MenuManagementScreen';
 import ProfileScreen from './ProfileScreen';
 import SettingsScreen from './SettingsScreen';
 
-// Link to other screens
-type HomeScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'HomeA'
->;
-
-type Props = {
-  navigation: HomeScreenNavigationProp;
-};
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomeA'>;
+type Props = { navigation: HomeScreenNavigationProp };
 
 /* Menu management interfaces */
-//  These interfaces define the structure of the menu data
 type Category = "Starter" | "Main" | "Dessert" | "Drink";
 
 interface MenuItem {
@@ -32,110 +24,142 @@ interface MenuItem {
   price: number;
   available: boolean;
   popularity?: number;
-  ingredients?: string[];
-  dietaryTags?: string[];
+  ingredients: string[];
+  dietaryTags: string[];
+  preparationTime: number;
+  calories?: number;
+  spiceLevel: 0 | 1 | 2 | 3;
 }
 
-// Available categories for menu items
 const categories: Category[] = ["Starter", "Main", "Dessert", "Drink"];
 
-/* Admin Dashboard
-  Features:
-  Menu management (add, edit, delete items)
-  Statistics and analytics
-  Bottom navigation between different admin screens */
+/* Gallery Screen Component */
+const GalleryScreen: React.FC = () => {
+  const galleryImages = [
+    { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
+    { id: '2', title: 'Chef in Action', image: require('../assets/gallery/chef-cooking.jpg'), description: 'Master chef preparing your meal' },
+    { id: '3', title: 'Fresh Ingredients', image: require('../assets/gallery/ingredients.jpg'), description: 'Daily fresh ingredients' },
+    { id: '4', title: 'Dining Experience', image: require('../assets/gallery/dining.jpg'), description: 'Elegant dining atmosphere' },
+    { id: '5', title: 'Dessert Selection', image: require('../assets/gallery/desserts.jpg'), description: 'Our signature desserts' },
+    { id: '6', title: 'Wine Collection', image: require('../assets/gallery/wine.jpg'), description: 'Premium wine selection' },
+  ];
+
+  return (
+    <View style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Restaurant Gallery</Text>
+      <Text style={styles.screenSubtitle}>Behind the scenes of our culinary experience</Text>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.galleryGrid}>
+          {galleryImages.map((item) => (
+            <View key={item.id} style={styles.galleryItem}>
+              <Image source={item.image} style={styles.galleryImage} />
+              <View style={styles.galleryInfo}>
+                <Text style={styles.galleryTitle}>{item.title}</Text>
+                <Text style={styles.galleryDescription}>{item.description}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+/* Admin Dashboard */
 const HomeScreenA: React.FC<Props> = ({ navigation }) => {
-  // Menu management - stores all menu items
+  // Menu management state
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    // Expanded
     {
-      id: '1',
-      name: 'Tomato Soup',
-      description: 'Rich and creamy tomato soup',
-      price: 55,
-      category: 'Starter',
-      available: true,
-      popularity: 4.5,
-      ingredients: ['tomatoes', 'cream', 'herbs'],
-      dietaryTags: ['Vegetarian']
+      id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
+      ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0
     },
     {
-      id: '2',
-      name: 'Grilled Chicken',
-      description: 'Served with garlic butter sauce',
-      price: 120,
-      category: 'Main',
-      available: true,
-      popularity: 4.8,
-      ingredients: ['chicken', 'garlic', 'butter', 'herbs'],
-      dietaryTags: []
+      id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
+      ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1
     },
-    // Compressed, all on one line no spaces
-    { id: '3', name: 'Chocolate Mousse', description: 'Smooth chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7, ingredients: ['chocolate', 'cream', 'eggs'], dietaryTags: ['Vegetarian'] },
-    { id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3, ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'] },
-    { id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6, ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [] },
+    {
+      id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
+      ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0
+    },
+    {
+      id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
+      ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0
+    },
+    {
+      id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
+      ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2
+    },
   ]);
 
-  // Adding new items
+  // Form state
   const [newItemName, setNewItemName] = useState("");
   const [newItemDesc, setNewItemDesc] = useState("");
   const [newItemCategory, setNewItemCategory] = useState<Category>("Starter");
   const [newItemPrice, setNewItemPrice] = useState("");
   const [newItemIngredients, setNewItemIngredients] = useState("");
+  const [newItemPrepTime, setNewItemPrepTime] = useState("");
+  const [newItemCalories, setNewItemCalories] = useState("");
+  const [newItemSpiceLevel, setNewItemSpiceLevel] = useState<0 | 1 | 2 | 3>(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeScreen, setActiveScreen] = useState('dashboard');
 
-  /* Menu Statistics
-    Calculates statistics only when menuItems change
-    This optimizes performance by avoiding recalculations on every render */
-    const stats = useMemo(() => {
+  // Filter state
+  const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
+  const [filterAvailability, setFilterAvailability] = useState<'All' | 'Available' | 'Unavailable'>('All');
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  /* Filter Functionality */
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter(item => {
+      const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
+      const matchesAvailability = filterAvailability === 'All' ||
+        (filterAvailability === 'Available' && item.available) ||
+        (filterAvailability === 'Unavailable' && !item.available);
+      const matchesSearch = searchQuery === '' ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesCategory && matchesAvailability && matchesSearch;
+    });
+  }, [menuItems, filterCategory, filterAvailability, searchQuery]);
+
+  const resetFilters = () => {
+    setFilterCategory('All');
+    setFilterAvailability('All');
+    setSearchQuery('');
+    setShowFilterModal(false);
+  };
+
+  /* Menu Statistics */
+  const stats = useMemo(() => {
     const total = menuItems.length;
     const availableItems = menuItems.filter(item => item.available).length;
     const totalRevenue = menuItems.reduce((sum, item) => sum + item.price, 0);
     const avgPrice = total > 0 ? totalRevenue / total : 0;
 
-    // Calculate average price by course using reduce to group items
-    const avgByCourse: Record<string, number> = {};
     const grouped = menuItems.reduce<Record<string, MenuItem[]>>((acc, item) => {
       acc[item.category] = acc[item.category] || [];
       acc[item.category].push(item);
       return acc;
     }, {});
 
-    // Calculate average for each category
+    const avgByCourse: Record<string, number> = {};
     for (const [course, items] of Object.entries(grouped)) {
       avgByCourse[course] = items.reduce((sum, i) => sum + i.price, 0) / items.length;
     }
 
-    // Calculate price range
     const allPrices = menuItems.map(i => i.price);
     const min = Math.min(...allPrices);
     const max = Math.max(...allPrices);
+    const mostPopularCourse = Object.keys(grouped).reduce((a, b) => grouped[a].length > grouped[b].length ? a : b);
 
-    // Find most popular course by item count
-    const mostPopularCourse = Object.keys(grouped).reduce((a, b) =>
-      grouped[a].length > grouped[b].length ? a : b
-    );
-
-    // Display for statistics
-    return {
-      total,
-      availableItems,
-      totalRevenue,
-      avgPrice,
-      avgByCourse,
-      min,
-      max,
-      mostPopularCourse
-    };
+    return { total, availableItems, totalRevenue, avgPrice, avgByCourse, min, max, mostPopularCourse };
   }, [menuItems]);
 
-  /* Menu Management Function
-    Adds a new menu item
-    Validates input and shows appropriate alerts */
+  /* Menu Management Functions */
   const addMenuItem = () => {
-    // Validation checks
-    // IF STATEMENT: Form validation
     if (!newItemName || !newItemDesc || !newItemPrice) {
       Alert.alert("Error", "Please fill out all required fields!");
       return;
@@ -147,9 +171,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    // Create new menu item object
     const newMenuItem: MenuItem = {
-      id: Date.now().toString(), // Simple ID generation using timestamp
+      id: Date.now().toString(),
       name: newItemName,
       description: newItemDesc,
       category: newItemCategory,
@@ -157,96 +180,102 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       available: true,
       ingredients: newItemIngredients ? newItemIngredients.split(',').map(i => i.trim()) : [],
       dietaryTags: [],
+      preparationTime: parseInt(newItemPrepTime) || 15,
+      calories: newItemCalories ? parseInt(newItemCalories) : undefined,
+      spiceLevel: newItemSpiceLevel,
     };
 
-    // Update state with new item
     setMenuItems(prev => [...prev, newMenuItem]);
+    resetForm();
+    setModalVisible(false);
+    Alert.alert("Success", "Menu item added successfully!");
+  };
 
-    // Reset form fields
+  const resetForm = () => {
     setNewItemName("");
     setNewItemDesc("");
     setNewItemPrice("");
     setNewItemIngredients("");
-    setModalVisible(false);
-
-    Alert.alert("Success", "Menu item added successfully!");
+    setNewItemPrepTime("");
+    setNewItemCalories("");
+    setNewItemSpiceLevel(0);
   };
 
-  //Toggles item availability status
   const toggleAvailability = (id: string) => {
-    setMenuItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, available: !item.available } : item
-      )
-    );
+    setMenuItems(prev => prev.map(item => item.id === id ? { ...item, available: !item.available } : item));
   };
 
-  // Deletes a menu item after confirmation
   const deleteMenuItem = (id: string) => {
-    Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this menu item?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setMenuItems(prev => prev.filter(item => item.id !== id));
-          }
-        }
-      ]
-    );
+    Alert.alert("Confirm Delete", "Are you sure you want to delete this menu item?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => setMenuItems(prev => prev.filter(item => item.id !== id)) }
+    ]);
   };
 
-  /* Menu Items
-  Renders individual menu item in the list
-  Uses FlatList for optimized rendering of large lists */
+  /* Menu Item Renderer */
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.menuCard}>
-      <View style={styles.menuCardHeader}>
-        <View style={styles.menuInfo}>
-          <Text style={styles.menuItemName}>{item.name}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{item.category}</Text>
+      <View style={styles.cardHeader}>
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>{item.category}</Text>
           </View>
         </View>
-        <Text style={styles.menuItemPrice}>R {item.price.toFixed(2)}</Text>
+        <Text style={styles.itemPrice}>R {item.price.toFixed(2)}</Text>
       </View>
 
-      <Text style={styles.menuItemDesc}>{item.description}</Text>
+      <Text style={styles.itemDescription}>{item.description}</Text>
 
-      {item.ingredients && item.ingredients.length > 0 && (
-        <Text style={styles.ingredients}>
-          Ingredients: {item.ingredients.join(', ')}
-        </Text>
-      )}
+      <View style={styles.itemDetails}>
+        <View style={styles.detailRow}>
+          <Ionicons name="time-outline" size={16} color="#666" />
+          <Text style={styles.detailText}>{item.preparationTime} min</Text>
 
-      <View style={styles.menuCardFooter}>
-        <View style={styles.availabilityContainer}>
-          <Text style={[styles.availability, { color: item.available ? 'green' : 'red' }]}>
-            {item.available ? 'Available' : 'Unavailable'}
-          </Text>
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={() => toggleAvailability(item.id)}
-          >
-            <Ionicons
-              name={item.available ? "eye" : "eye-off"}
-              size={20}
-              color={item.available ? "green" : "red"}
-            />
-          </TouchableOpacity>
+          {item.calories && (
+            <>
+              <Ionicons name="flame-outline" size={16} color="#666" style={styles.detailIcon} />
+              <Text style={styles.detailText}>{item.calories} cal</Text>
+            </>
+          )}
+
+          <Ionicons name="thermometer-outline" size={16} color="#666" style={styles.detailIcon} />
+          <Text style={styles.detailText}>{['None', 'Mild', 'Medium', 'Spicy'][item.spiceLevel]}</Text>
         </View>
 
-        <View style={styles.menuActions}>
+        {item.ingredients.length > 0 && (
+          <Text style={styles.ingredients}>Ingredients: {item.ingredients.join(', ')}</Text>
+        )}
+
+        {item.dietaryTags.length > 0 && (
+          <View style={styles.tagsContainer}>
+            {item.dietaryTags.map(tag => (
+              <View key={tag} style={styles.tag}>
+                <Text style={styles.tagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={styles.cardActions}>
+        <View style={styles.availabilityContainer}>
+          <Switch
+            value={item.available}
+            onValueChange={() => toggleAvailability(item.id)}
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={item.available ? '#0557ef' : '#f4f3f4'}
+          />
+          <Text style={[styles.availabilityText, { color: item.available ? '#06D6A0' : '#f0101b' }]}>
+            {item.available ? 'Available' : 'Unavailable'}
+          </Text>
+        </View>
+
+        <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.editButton}>
             <Ionicons name="create-outline" size={18} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => deleteMenuItem(item.id)}
-          >
+          <TouchableOpacity style={styles.deleteButton} onPress={() => deleteMenuItem(item.id)}>
             <Ionicons name="trash-outline" size={18} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -254,15 +283,51 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     </View>
   );
 
-  /* Render Screen Content
-  Renders the active screen content based on bottom navigation selection
-  Uses switch statement for different screen components */
+  /* Gallery Preview Component */
+  const GalleryPreview = () => {
+    const galleryImages = [
+      { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
+      { id: '2', title: 'Chef in Action', image: require('../assets/gallery/chef-cooking.jpg'), description: 'Master chef preparing your meal' },
+      { id: '3', title: 'Fresh Ingredients', image: require('../assets/gallery/ingredients.jpg'), description: 'Daily fresh ingredients' },
+    ];
+
+    return (
+      <View style={styles.galleryPreviewContainer}>
+        <View style={styles.galleryPreviewHeader}>
+          <Text style={styles.sectionTitle}>Restaurant Gallery</Text>
+          <TouchableOpacity 
+            style={styles.viewAllButton}
+            onPress={() => setActiveScreen('gallery')}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+            <Ionicons name="chevron-forward" size={16} color="#0557ef" />
+          </TouchableOpacity>
+        </View>
+        
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.galleryPreviewRow}>
+            {galleryImages.map((item) => (
+              <View key={item.id} style={styles.galleryPreviewItem}>
+                <Image source={item.image} style={styles.galleryPreviewImage} />
+                <View style={styles.galleryPreviewInfo}>
+                  <Text style={styles.galleryPreviewTitle}>{item.title}</Text>
+                  <Text style={styles.galleryPreviewDescription}>{item.description}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
+
+  /* Screen Content Renderer */
   const renderScreenContent = () => {
     switch (activeScreen) {
       case 'dashboard':
         return (
           <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-            {/* Header Section */}
+            {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <Image source={require('../assets/Logo(1).jpeg')} style={styles.logo} />
@@ -271,16 +336,69 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   <Text style={styles.roleLabel}>Admin Dashboard</Text>
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.guestButton}
-                onPress={() => navigation.navigate('HomeG')}
-              >
+              <TouchableOpacity style={styles.guestButton} onPress={() => navigation.navigate('HomeG')}>
                 <Ionicons name="eye-outline" size={20} color="#fff" />
                 <Text style={styles.guestButtonText}>Guest View</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Quick Stats Section */}
+            {/* Search and Filter Bar */}
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color="#666" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              <TouchableOpacity
+                style={styles.filterButton}
+                onPress={() => setShowFilterModal(true)}
+              >
+                <Ionicons name="filter" size={20} color="#0557ef" />
+                <Text style={styles.filterText}>Filter</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Active Filters Display */}
+            {(filterCategory !== 'All' || filterAvailability !== 'All' || searchQuery) && (
+              <View style={styles.activeFiltersContainer}>
+                <Text style={styles.activeFiltersTitle}>Active Filters:</Text>
+                <View style={styles.activeFiltersRow}>
+                  {filterCategory !== 'All' && (
+                    <View style={styles.activeFilterTag}>
+                      <Text style={styles.activeFilterText}>Category: {filterCategory}</Text>
+                      <TouchableOpacity onPress={() => setFilterCategory('All')}>
+                        <Ionicons name="close" size={16} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {filterAvailability !== 'All' && (
+                    <View style={styles.activeFilterTag}>
+                      <Text style={styles.activeFilterText}>
+                        {filterAvailability === 'Available' ? 'Available Only' : 'Unavailable Only'}
+                      </Text>
+                      <TouchableOpacity onPress={() => setFilterAvailability('All')}>
+                        <Ionicons name="close" size={16} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {searchQuery && (
+                    <View style={styles.activeFilterTag}>
+                      <Text style={styles.activeFilterText}>Search: "{searchQuery}"</Text>
+                      <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <Ionicons name="close" size={16} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  <TouchableOpacity style={styles.clearAllButton} onPress={resetFilters}>
+                    <Text style={styles.clearAllText}>Clear All</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Quick Stats */}
             <View style={styles.statsContainer}>
               <Text style={styles.sectionTitle}>Quick Overview</Text>
               <View style={styles.statsGrid}>
@@ -297,42 +415,36 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.statCard}>
                   <Ionicons name="trending-up-outline" size={33} color="#FF9E0A" />
                   <Text style={styles.statLabel}>Avg Prices by Course</Text>
-                  <Text style={styles.space} />
+                  <View style={styles.space} />
                   {Object.entries(stats.avgByCourse).map(([course, price]) => (
-                    <Text key={course} style={styles.additionalStatValue}>
-                      {course}: R {price.toFixed(2)}
-                    </Text>
+                    <Text key={course} style={styles.additionalStatValue}>{course}: R {price.toFixed(2)}</Text>
                   ))}
                 </View>
                 <View style={styles.statCard}>
                   <Ionicons name="pricetag-outline" size={24} color="#f0101b" />
                   <Text style={styles.statLabel}>Avg Price</Text>
                   <Text style={styles.statNumber}>R{stats.avgPrice.toFixed(2)}</Text>
-                  <Text style={styles.additionalStatValue}>
-                    Most Popular: {stats.mostPopularCourse}
-                  </Text>
+                  <Text style={styles.additionalStatValue}>Most Popular: {stats.mostPopularCourse}</Text>
                   <Text style={styles.statLabel}>Price Range</Text>
-                  <Text style={styles.additionalStatValue}>
-                    R{stats.min} - R{stats.max}
-                  </Text>
+                  <Text style={styles.additionalStatValue}>R{stats.min} - R{stats.max}</Text>
                 </View>
               </View>
             </View>
 
-            {/* Quick Actions Section */}
+            {/* Quick Actions */}
             <View style={styles.actionsContainer}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
               <View style={styles.actionsRow}>
-                <TouchableOpacity
-                  style={styles.actionButton}
-                  onPress={() => setModalVisible(true)}
-                >
+                <TouchableOpacity style={styles.actionButton} onPress={() => setModalVisible(true)}>
                   <Ionicons name="add-circle" size={28} color="#fff" />
                   <Text style={styles.actionText}>Add New Item</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Ionicons name="book-outline" size={28} color="#fff" />
-                  <Text style={styles.actionText}>Manage Categories</Text>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => setActiveScreen('gallery')}
+                >
+                  <Ionicons name="images-outline" size={28} color="#fff" />
+                  <Text style={styles.actionText}>Gallery</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
                   <Ionicons name="analytics-outline" size={28} color="#fff" />
@@ -341,26 +453,44 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Menu Items List Section */}
+            {/* Menu Items */}
             <View style={styles.menuContainer}>
-              <View style={styles.menuHeader}>
-                <Text style={styles.sectionTitle}>Menu Items ({menuItems.length})</Text>
-                <TouchableOpacity style={styles.filterButton}>
-                  <Ionicons name="filter" size={20} color="#0557ef" />
-                  <Text style={styles.filterText}>Filter</Text>
-                </TouchableOpacity>
+              <View style={styles.listHeader}>
+                <Text style={styles.sectionTitle}>
+                  Menu Items ({filteredMenuItems.length})
+                  {menuItems.length !== filteredMenuItems.length && ` of ${menuItems.length}`}
+                </Text>
+                <Text style={styles.filteredCount}>
+                  {filteredMenuItems.length} items
+                </Text>
               </View>
 
-              <FlatList
-                data={menuItems}
-                renderItem={renderMenuItem}
-                keyExtractor={item => item.id}
-                scrollEnabled={false}
-                contentContainerStyle={styles.menuList}
-              />
+              {filteredMenuItems.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Ionicons name="search-outline" size={48} color="#ccc" />
+                  <Text style={styles.emptyStateText}>No menu items found</Text>
+                  <Text style={styles.emptyStateSubtext}>
+                    Try adjusting your filters or search terms
+                  </Text>
+                  <TouchableOpacity style={styles.resetFiltersButton} onPress={resetFilters}>
+                    <Text style={styles.resetFiltersText}>Reset Filters</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <FlatList
+                  data={filteredMenuItems}
+                  renderItem={renderMenuItem}
+                  keyExtractor={item => item.id}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.listContent}
+                />
+              )}
             </View>
 
-            {/* Recent Activity Section */}
+            {/* Gallery Preview */}
+            <GalleryPreview />
+
+            {/* Recent Activity */}
             <View style={styles.activityContainer}>
               <Text style={styles.sectionTitle}>Recent Activity</Text>
               <View style={styles.activityList}>
@@ -374,54 +504,50 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           </ScrollView>
         );
 
-      case 'menu':
-        return <MenuManagementScreen />;
+      case 'gallery':
+        return <GalleryScreen />;
 
-      case 'profile':
-        return <ProfileScreen />;
-
-      case 'settings':
-        return <SettingsScreen />;
-
-      default:
-        return (
-          <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>Dashboard</Text>
-          </View>
-        );
+      case 'menu': return <MenuManagementScreen />;
+      case 'profile': return <ProfileScreen />;
+      case 'settings': return <SettingsScreen />;
+      default: return (
+        <View style={styles.screenContainer}>
+          <Text style={styles.screenTitle}>Dashboard</Text>
+        </View>
+      );
     }
   };
 
-  /* Helper function to get screen title based on active screen */
   const getScreenTitle = () => {
-    switch (activeScreen) {
-      case 'dashboard': return 'Dashboard';
-      case 'menu': return 'Menu';
-      case 'profile': return 'Profile';
-      case 'settings': return 'Settings';
-      default: return 'Dashboard';
-    }
+    const titles = {
+      dashboard: 'Dashboard',
+      gallery: 'Gallery',
+      menu: 'Menu',
+      profile: 'Profile',
+      settings: 'Settings'
+    };
+    return titles[activeScreen as keyof typeof titles] || 'Dashboard';
   };
+
+  const navItems = [
+    { key: 'dashboard', icon: 'restaurant', label: 'Dashboard' },
+    { key: 'gallery', icon: 'images', label: 'Gallery' },
+    { key: 'menu', icon: 'book', label: 'Menu' },
+    { key: 'profile', icon: 'person', label: 'Profile' },
+    { key: 'settings', icon: 'settings', label: 'Settings' },
+  ];
 
   return (
     <LinearGradient colors={['#ffffff', '#f0f4ff']} style={styles.gradient}>
       <SafeAreaView style={styles.container}>
-        {/* Page Title Header */}
         <View style={styles.pageHeader}>
           <Text style={styles.pageTitle}>{getScreenTitle()}</Text>
         </View>
 
-        {/* Main Content Area */}
         {renderScreenContent()}
 
-        {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
-          {[
-            { key: 'dashboard', icon: 'restaurant', label: 'Dashboard' },
-            { key: 'menu', icon: 'book', label: 'Menu' },
-            { key: 'profile', icon: 'person', label: 'Profile' },
-            { key: 'settings', icon: 'settings', label: 'Settings' },
-          ].map((navItem) => (
+          {navItems.map((navItem) => (
             <TouchableOpacity
               key={navItem.key}
               style={[styles.navItem, activeScreen === navItem.key && styles.activeNavItem]}
@@ -440,12 +566,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
         </View>
 
         {/* Add Item Modal */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
+        <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
@@ -456,21 +577,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
 
               <ScrollView style={styles.modalBody}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Item Name"
-                  value={newItemName}
-                  onChangeText={setNewItemName}
-                />
-
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Description"
-                  value={newItemDesc}
-                  onChangeText={setNewItemDesc}
-                  multiline
-                  numberOfLines={3}
-                />
+                <TextInput style={styles.input} placeholder="Item Name" value={newItemName} onChangeText={setNewItemName} />
+                <TextInput style={[styles.input, styles.textArea]} placeholder="Description" value={newItemDesc} onChangeText={setNewItemDesc} multiline numberOfLines={3} />
 
                 <Text style={styles.inputLabel}>Category</Text>
                 <View style={styles.categoryRow}>
@@ -478,43 +586,107 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                     <Pressable
                       key={category}
                       onPress={() => setNewItemCategory(category)}
-                      style={[
-                        styles.categoryButton,
-                        newItemCategory === category && styles.selectedCategory,
-                      ]}
+                      style={[styles.categoryOption, newItemCategory === category && styles.selectedCategory]}
                     >
-                      <Text
-                        style={[
-                          styles.categoryText,
-                          newItemCategory === category && styles.selectedCategoryText,
-                        ]}
-                      >
+                      <Text style={[styles.categoryOptionText, newItemCategory === category && styles.selectedCategoryText]}>
                         {category}
                       </Text>
                     </Pressable>
                   ))}
                 </View>
 
-                <TextInput
-                  style={styles.input}
-                  placeholder="Price (R)"
-                  value={newItemPrice}
-                  onChangeText={setNewItemPrice}
-                  keyboardType="numeric"
-                />
+                <TextInput style={styles.input} placeholder="Price (R)" value={newItemPrice} onChangeText={setNewItemPrice} keyboardType="numeric" />
+                <TextInput style={[styles.input, styles.textArea]} placeholder="Ingredients (use a comma as a separator)" value={newItemIngredients} onChangeText={setNewItemIngredients} multiline numberOfLines={2} />
+                <TextInput style={styles.input} placeholder="Preparation Time (minutes)" value={newItemPrepTime} onChangeText={setNewItemPrepTime} keyboardType="numeric" />
+                <TextInput style={styles.input} placeholder="Calories (optional)" value={newItemCalories} onChangeText={setNewItemCalories} keyboardType="numeric" />
 
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Ingredients (comma separated)"
-                  value={newItemIngredients}
-                  onChangeText={setNewItemIngredients}
-                  multiline
-                  numberOfLines={2}
-                />
+                <Text style={styles.inputLabel}>Spice Level</Text>
+                <View style={styles.spiceLevelContainer}>
+                  {[0, 1, 2, 3].map(level => (
+                    <Pressable
+                      key={level}
+                      onPress={() => setNewItemSpiceLevel(level as 0 | 1 | 2 | 3)}
+                      style={[styles.spiceLevelOption, newItemSpiceLevel === level && styles.selectedSpiceLevel]}
+                    >
+                      <Text style={[styles.spiceLevelText, newItemSpiceLevel === level && styles.selectedSpiceLevelText]}>
+                        {['None', 'Mild', 'Medium', 'Spicy'][level]}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
 
-                <TouchableOpacity style={styles.addButton} onPress={addMenuItem}>
-                  <Text style={styles.addButtonText}>Add to Menu</Text>
+                <TouchableOpacity style={styles.saveButton} onPress={addMenuItem}>
+                  <Text style={styles.saveButtonText}>Add to Menu</Text>
                 </TouchableOpacity>
+                {/*To get the button in view*/}
+                <Text style={styles.space}></Text>
+                <Text style={styles.space}></Text>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Filter Modal */}
+        <Modal animationType="slide" transparent visible={showFilterModal} onRequestClose={() => setShowFilterModal(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Filter Menu Items</Text>
+                <TouchableOpacity onPress={() => setShowFilterModal(false)}>
+                  <Ionicons name="close" size={24} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.modalBody}>
+                {/* Category Filter */}
+                <Text style={styles.inputLabel}>Category</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryRow}>
+                  <Pressable
+                    style={[styles.filterOption, filterCategory === 'All' && styles.activeFilterOption]}
+                    onPress={() => setFilterCategory('All')}
+                  >
+                    <Text style={[styles.filterOptionText, filterCategory === 'All' && styles.activeFilterOptionText]}>
+                      All
+                    </Text>
+                  </Pressable>
+                  {categories.map(category => (
+                    <Pressable
+                      key={category}
+                      style={[styles.filterOption, filterCategory === category && styles.activeFilterOption]}
+                      onPress={() => setFilterCategory(category)}
+                    >
+                      <Text style={[styles.filterOptionText, filterCategory === category && styles.activeFilterOptionText]}>
+                        {category}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+
+                {/* Availability Filter */}
+                <Text style={styles.inputLabel}>Availability</Text>
+                <View style={styles.availabilityFilterRow}>
+                  {(['All', 'Available', 'Unavailable'] as const).map(availability => (
+                    <Pressable
+                      key={availability}
+                      style={[styles.filterOption, filterAvailability === availability && styles.activeFilterOption]}
+                      onPress={() => setFilterAvailability(availability)}
+                    >
+                      <Text style={[styles.filterOptionText, filterAvailability === availability && styles.activeFilterOptionText]}>
+                        {availability}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+
+                {/* Action Buttons */}
+                <View style={styles.filterActions}>
+                  <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
+                    <Text style={styles.resetButtonText}>Reset Filters</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.applyButton} onPress={() => setShowFilterModal(false)}>
+                    <Text style={styles.applyButtonText}>Apply Filters</Text>
+                  </TouchableOpacity>
+                </View>
               </ScrollView>
             </View>
           </View>
@@ -524,426 +696,167 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-// StyleSheet
+// Updated StyleSheet with new styles
 const styles = StyleSheet.create({
-  // General Styles
-  gradient: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  space: {
-    height: 16,
-  },
-  pageHeader: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#222',
-  },
-  screenContainer: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  screenTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#222',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  screenSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  placeholderContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  placeholderText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  placeholderSubtext: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingVertical: 8,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
+  // Layout
+  gradient: { flex: 1 },
+  container: { flex: 1 },
+  scrollView: { flex: 1 },
+  space: { height: 16 },
+
+  // Headers
+  pageHeader: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  pageTitle: { fontSize: 24, fontWeight: '700', color: '#222' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: '#fff' },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  logo: { width: 40, height: 40, borderRadius: 8, marginRight: 12 },
+  chefName: { fontSize: 18, fontWeight: '700', color: '#222' },
+  roleLabel: { fontSize: 14, color: '#555' },
+
+  // Search and Filter
+  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8f9fa', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, margin: 16, marginBottom: 8 },
+  searchInput: { flex: 1, marginLeft: 12, marginRight: 12, fontSize: 16, color: '#333' },
+  activeFiltersContainer: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#f8f9fa', marginHorizontal: 16, borderRadius: 8, marginBottom: 8 },
+  activeFiltersTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
+  activeFiltersRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
+  activeFilterTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0557ef', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginRight: 8, marginBottom: 4 },
+  activeFilterText: { color: '#fff', fontSize: 12, fontWeight: '500', marginRight: 6 },
+  clearAllButton: { backgroundColor: '#f8f9fa', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: '#0557ef' },
+  clearAllText: { color: '#0557ef', fontSize: 12, fontWeight: '500' },
+  filteredCount: { fontSize: 14, color: '#666', fontWeight: '500' },
+
+  // Buttons
+  guestButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#06D6A0', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  guestButtonText: { color: '#fff', marginLeft: 6, fontWeight: '600', fontSize: 14 },
+  actionButton: { flex: 1, alignItems: 'center', backgroundColor: '#0557ef', padding: 16, borderRadius: 12, marginHorizontal: 4 },
+  actionText: { color: '#fff', marginTop: 8, fontWeight: '600', fontSize: 12, textAlign: 'center' },
+
+  // Stats
+  statsContainer: { padding: 16 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 16 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  statCard: { width: '48%', backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
+  statNumber: { fontSize: 24, fontWeight: '700', color: '#333', marginTop: 8, marginBottom: 4 },
+  statLabel: { fontSize: 12, color: '#666', textAlign: 'center' },
+  additionalStatValue: { fontSize: 13, fontWeight: '700', color: '#090909', marginBottom: 8 },
+
+  // Containers
+  actionsContainer: { padding: 16 },
+  actionsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  menuContainer: { padding: 16 },
+  activityContainer: { padding: 16, paddingBottom: 32 },
+
+  // Lists
+  listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  listContent: { paddingBottom: 16 },
+  filterButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f4ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#0557ef' },
+  filterText: { color: '#0557ef', marginLeft: 4, fontWeight: '500', fontSize: 14 },
+
+  // Menu Items
+  menuCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
+  itemInfo: { flex: 1 },
+  itemName: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 4 },
+  categoryBadge: { backgroundColor: '#f0f4ff', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, alignSelf: 'flex-start' },
+  categoryText: { fontSize: 12, fontWeight: '600', color: '#0557ef' },
+  itemPrice: { fontSize: 18, fontWeight: '700', color: '#06D6A0', marginLeft: 8 },
+  itemDescription: { fontSize: 14, color: '#666', marginBottom: 12, lineHeight: 20 },
+  itemDetails: { marginBottom: 12 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  detailIcon: { marginLeft: 12 },
+  detailText: { fontSize: 12, color: '#666', marginLeft: 4 },
+  ingredients: { fontSize: 12, color: '#888', fontStyle: 'italic', marginTop: 4 },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 },
+  tag: { backgroundColor: '#f0f0f0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4, marginRight: 6, marginBottom: 4 },
+  tagText: { fontSize: 10, color: '#666', fontWeight: '500' },
+  cardActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  availabilityContainer: { flexDirection: 'row', alignItems: 'center' },
+  availabilityText: { fontSize: 14, fontWeight: '600', marginLeft: 8 },
+  actionButtons: { flexDirection: 'row' },
+  editButton: { backgroundColor: '#0557ef', padding: 8, borderRadius: 6, marginRight: 8 },
+  deleteButton: { backgroundColor: '#f0101b', padding: 8, borderRadius: 6 },
+
+  // Activity
+  activityList: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
+  activityItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
+  activityText: { flex: 1, fontSize: 14, color: '#333' },
+  activityTime: { fontSize: 12, color: '#666' },
+
+  // Empty State
+  emptyState: { alignItems: 'center', padding: 40, backgroundColor: '#fff', borderRadius: 12 },
+  emptyStateText: { fontSize: 16, fontWeight: '600', color: '#333', marginTop: 12 },
+  emptyStateSubtext: { fontSize: 14, color: '#666', textAlign: 'center', marginTop: 4 },
+  resetFiltersButton: { backgroundColor: '#0557ef', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, marginTop: 12 },
+  resetFiltersText: { color: '#fff', fontWeight: '600' },
+
+  // Modal
+  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  modalBody: { padding: 20 },
+
+  // Form Inputs
+  input: { backgroundColor: '#f8f9fa', borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 16 },
+  textArea: { minHeight: 80, textAlignVertical: 'top' },
+  inputLabel: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8, marginTop: 4 },
+  categoryRow: { flexDirection: 'row', marginBottom: 16 },
+  categoryOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
+  selectedCategory: { backgroundColor: '#0557ef' },
+  categoryOptionText: { fontSize: 14, fontWeight: '500', color: '#666' },
+  selectedCategoryText: { color: '#fff' },
+  spiceLevelContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  spiceLevelOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
+  selectedSpiceLevel: { backgroundColor: '#f0101b' },
+  spiceLevelText: { fontSize: 14, fontWeight: '500', color: '#666' },
+  selectedSpiceLevelText: { color: '#fff' },
+  saveButton: { backgroundColor: '#06D6A0', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 8 },
+  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  // Filter Modal Styles
+  filterOption: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f8f9fa', marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#e0e0e0' },
+  activeFilterOption: { backgroundColor: '#0557ef', borderColor: '#0557ef' },
+  filterOptionText: { fontSize: 14, fontWeight: '500', color: '#666' },
+  activeFilterOptionText: { color: '#fff' },
+  availabilityFilterRow: { flexDirection: 'row', marginBottom: 16 },
+  filterActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  resetButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginRight: 8, borderWidth: 1, borderColor: '#e0e0e0' },
+  resetButtonText: { color: '#666', fontSize: 16, fontWeight: '600' },
+  applyButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#0557ef', alignItems: 'center', marginLeft: 8 },
+  applyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  // Navigation
+  bottomNav: { flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingVertical: 8 },
+  navItem: { flex: 1, alignItems: 'center', paddingVertical: 8 },
   activeNavItem: {},
-  navText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  activeNavText: {
-    color: '#0557ef',
-    fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  chefName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#222',
-  },
-  roleLabel: {
-    fontSize: 14,
-    color: '#555',
-  },
-  guestButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#06D6A0',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  guestButtonText: {
-    color: '#fff',
-    marginLeft: 6,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  statsContainer: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-  additionalStatValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#090909',
-    marginBottom: 8,
-  },
-  actionsContainer: {
-    padding: 16,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#0557ef',
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 4,
-  },
-  actionText: {
-    color: '#fff',
-    marginTop: 8,
-    fontWeight: '600',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  menuContainer: {
-    padding: 16,
-  },
-  menuHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f4ff',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  filterText: {
-    color: '#0557ef',
-    marginLeft: 4,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  menuList: {
-    paddingBottom: 16,
-  },
-  menuCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  menuCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  menuInfo: {
-    flex: 1,
-  },
-  menuItemName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#222',
-    marginBottom: 4,
-  },
-  badge: {
-    backgroundColor: '#0557ef',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    alignSelf: 'flex-start',
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  menuItemPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0557ef',
-  },
-  menuItemDesc: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  ingredients: {
-    fontSize: 12,
-    color: '#888',
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  menuCardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  availabilityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  availability: {
-    fontWeight: '600',
-    marginRight: 8,
-  },
-  toggleButton: {
-    padding: 4,
-  },
-  menuActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  editButton: {
-    backgroundColor: '#0557ef',
-    padding: 8,
-    borderRadius: 6,
-  },
-  deleteButton: {
-    backgroundColor: '#f0101b',
-    padding: 8,
-    borderRadius: 6,
-  },
-  activityContainer: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  activityList: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  activityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 12,
-  },
-  activityText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
-  },
-  activityTime: {
-    fontSize: 12,
-    color: '#999',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-  },
-  modalBody: {
-    padding: 16,
-  },
-  input: {
-    backgroundColor: '#f8f9fa',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  categoryButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  selectedCategory: {
-    backgroundColor: '#0557ef',
-    borderColor: '#0557ef',
-  },
-  categoryText: {
-    fontSize: 13,
-    color: '#333',
-    fontWeight: '500',
-  },
-  selectedCategoryText: {
-    color: '#fff',
-  },
-  addButton: {
-    backgroundColor: '#06D6A0',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  navText: { fontSize: 12, color: '#666', marginTop: 4 },
+  activeNavText: { color: '#0557ef', fontWeight: '600' },
+
+  // Screen Containers
+  screenContainer: { flex: 1, padding: 16 },
+  screenTitle: { fontSize: 24, fontWeight: '700', color: '#333', marginBottom: 8 },
+  screenSubtitle: { fontSize: 16, color: '#666', marginBottom: 16 },
+
+  // Gallery Styles
+  galleryPreviewContainer: { padding: 16 },
+  galleryPreviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  viewAllButton: { flexDirection: 'row', alignItems: 'center' },
+  viewAllText: { color: '#0557ef', fontWeight: '600', marginRight: 4 },
+  galleryPreviewRow: { flexDirection: 'row' },
+  galleryPreviewItem: { width: 200, backgroundColor: '#fff', borderRadius: 12, marginRight: 12, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
+  galleryPreviewImage: { width: '100%', height: 120 },
+  galleryPreviewInfo: { padding: 12 },
+  galleryPreviewTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4 },
+  galleryPreviewDescription: { fontSize: 12, color: '#666' },
+
+  // Full Gallery Styles
+  galleryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  galleryItem: { width: '48%', backgroundColor: '#fff', borderRadius: 12, marginBottom: 16, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
+  galleryImage: { width: '100%', height: 150 },
+  galleryInfo: { padding: 12 },
+  galleryTitle: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
+  galleryDescription: { fontSize: 14, color: '#666' },
 });
 
 export default HomeScreenA;
