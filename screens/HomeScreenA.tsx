@@ -135,6 +135,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     Validates input and shows appropriate alerts */
   const addMenuItem = () => {
     // Validation checks
+    // IF STATEMENT: Form validation
     if (!newItemName || !newItemDesc || !newItemPrice) {
       Alert.alert("Error", "Please fill out all required fields!");
       return;

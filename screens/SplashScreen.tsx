@@ -51,6 +51,7 @@ const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
     /* Handles admin login authentication
     Validates password and navigates to admin dashboard on success */
+    // IF STATEMENT: Check password validation
     const handleLogin = () => {
         if (password === correctPassword) {
             console.log('Login Successful');
