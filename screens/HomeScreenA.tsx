@@ -1,11 +1,14 @@
 // HomeScreenA.tsx : Admin Screen 
 // Imports
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import MenuManagementScreen from './MenuManagementScreen';
+import ProfileScreen from './ProfileScreen';
+import SettingsScreen from './SettingsScreen';
 
 // Link to other screens
 type HomeScreenNavigationProp = NativeStackNavigationProp<
@@ -85,7 +88,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   /* Menu Statistics
     Calculates statistics only when menuItems change
     This optimizes performance by avoiding recalculations on every render */
-  const stats = useMemo(() => {
+    const stats = useMemo(() => {
     const total = menuItems.length;
     const availableItems = menuItems.filter(item => item.available).length;
     const totalRevenue = menuItems.reduce((sum, item) => sum + item.price, 0);
@@ -114,6 +117,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       grouped[a].length > grouped[b].length ? a : b
     );
 
+    // Display for statistics
     return {
       total,
       availableItems,
@@ -175,7 +179,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       )
     );
   };
-  
+
   // Deletes a menu item after confirmation
   const deleteMenuItem = (id: string) => {
     Alert.alert(
@@ -369,45 +373,14 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           </ScrollView>
         );
 
-      // Other screen cases (menu, profile, settings) follow similar pattern
       case 'menu':
-        return (
-          <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>Menu Management</Text>
-            <Text style={styles.screenSubtitle}>Manage your restaurant menu items</Text>
-            <View style={styles.placeholderContent}>
-              <Ionicons name="book-outline" size={60} color="#0557ef" />
-              <Text style={styles.placeholderText}>Menu Management Screen</Text>
-              <Text style={styles.placeholderSubtext}>This is where you manage all menu items</Text>
-            </View>
-          </View>
-        );
+        return <MenuManagementScreen />;
 
       case 'profile':
-        return (
-          <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>My Profile</Text>
-            <Text style={styles.screenSubtitle}>Manage your account information</Text>
-            <View style={styles.placeholderContent}>
-              <Ionicons name="person-circle-outline" size={60} color="#06D6A0" />
-              <Text style={styles.placeholderText}>Profile Screen</Text>
-              <Text style={styles.placeholderSubtext}>This is where you manage your profile</Text>
-            </View>
-          </View>
-        );
+        return <ProfileScreen />;
 
       case 'settings':
-        return (
-          <View style={styles.screenContainer}>
-            <Text style={styles.screenTitle}>Settings</Text>
-            <Text style={styles.screenSubtitle}>Configure app preferences</Text>
-            <View style={styles.placeholderContent}>
-              <Ionicons name="settings-outline" size={60} color="#FF9E0A" />
-              <Text style={styles.placeholderText}>Settings Screen</Text>
-              <Text style={styles.placeholderSubtext}>This is where you adjust app settings</Text>
-            </View>
-          </View>
-        );
+        return <SettingsScreen />;
 
       default:
         return (
@@ -422,8 +395,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   const getScreenTitle = () => {
     switch (activeScreen) {
       case 'dashboard': return 'Dashboard';
-      case 'menu': return 'Menu Management';
-      case 'profile': return 'My Profile';
+      case 'menu': return 'Menu';
+      case 'profile': return 'Profile';
       case 'settings': return 'Settings';
       default: return 'Dashboard';
     }
@@ -951,7 +924,7 @@ const styles = StyleSheet.create({
     borderColor: '#0557ef',
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#333',
     fontWeight: '500',
   },
