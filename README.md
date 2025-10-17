@@ -2,7 +2,7 @@
 
 **ST10478785, Vishay Gosai**
 
-Introduction to Mobile Appliction Development - MAST5112
+Mobile App Scripting - MAST5112
 
 [Kitchen Delicacies Logo](<./assets/Logo(2).jpeg>)
 
