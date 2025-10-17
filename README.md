@@ -230,7 +230,13 @@ text-gray: #666;
 - **Restaurant**: Kitchen Delicacies - Chef Christoffel
 - **Contact**: Implementation-specific contact details
 
+## Links
+
+### Github  : https://github.com/st10478785/Kitchen_Delicacies_Christoffel
+### YouTube : https://youtu.be/7iPprJ6SpRI
+
 ## References
+
 Baymard Institute (2025) Ecommerce Design Examples. Available at: https://baymard.com/ecommerce-design-examples (Accessed: 5 August 2025).
 
 Freepik (2025) New modern realistic front view black iPhone mockup isolated white mobile template vector. Available at: https://www.freepik.com/free-vector/new-modern-realistic-front-view-black-iphone-mockup-isolated-white-mobile-template-vector_33632328.htm#fromView=keyword&page=1&position=0&uuid=c00f978c-d906-47d3-ada5-0f3df4e8234c&query=Phone+Silhouette (Accessed: 1 August 2025).
