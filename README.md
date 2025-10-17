@@ -1,0 +1,281 @@
+# Kitchen Delicacies - Restaurant Management App
+
+**ST10478785, Vishay Gosai**
+
+Introduction to Mobile Appliction Development - MAST5112
+
+[Kitchen Delicacies Logo](<./assets/Logo(2).jpeg>)
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [App Structure](#app-structure)
+3. [Features](#features)
+4. [Technical Specifications](#technical-specifications)
+5. [File Structure](#file-structure)
+6. [Design System](#design-system)
+7. [React Native Components](#react-native-components)
+8. [Navigation](#navigation)
+9. [Performance Optimization](#performance-optimization)
+10. [Development Guidelines](#development-guidelines)
+11. [Deployment Instructions](#deployment-instructions)
+12. [Resources] (#resources)
+
+## Project Overview
+
+Kitchen Delicacies is a comprehensive restaurant management application built with React Native. It's designed to streamline menu management, order processing and customer interactions for Chef Christoffel's culinary business. The app provides separate interfaces for administrators and guests with robust functionality for both user types.
+
+**Mission**: To provide an intuitive, efficient digital solution for restaurant management that enhances both operational efficiency and customer experience.
+
+**Target Audience**:
+
+- Restaurant administrators and chefs
+- Customers browsing menus and placing orders
+- Staff managing inventory and availability
+
+## App Structure
+
+### Core Screens:
+
+- **App** (`App.tsx`) - Helps with linking of the pages.
+- **SplashScreen** (`SplashScreen.tsx`) - Initial authentication screen with admin login.
+- **HomeScreenA** (`HomeScreenA.tsx`) - Admin dashboard with comprehensive management tools.
+- **HomeScreenG** (`HomeScreenG.tsx`) - Guest view for menu browsing and ordering.
+- **MenuManagementScreen** (`MenuManagementScreen.tsx`) - Detailed menu item management.
+- **ProfileScreen** (`ProfileScreen.tsx`) - User profile and preferences management.
+- **SettingsScreen** (`SettingsScreen.tsx`) - App configuration and settings.
+- **Assets** (`Assets`) - Stores all the apps images.
+
+## Features
+
+### Admin Functionality
+
+- **Menu Management**: Add, edit, delete and toggle availability of menu items.
+- **Advanced Filtering**: Category, availability and search filtering.
+- **Statistics Dashboard**: Real-time menu analytics and performance metrics.
+- **Gallery Management**: Restaurant image gallery with preview functionality.
+- **Inventory Control**: Track item availability and update status in real-time.
+
+### Guest Functionality
+
+- **Menu Browsing**: Filterable menu with detailed item information.
+- **Shopping Cart**: Add or remove items from cart with persistent cart state.
+- **Search & Discovery**: Advanced search across names, descriptions and ingredients.
+- **Dietary Preferences**: Filter by dietary tags and preferences.
+- **Order Management**: Cart summary and ordering workflow.
+
+### Shared Features
+
+- **Responsive Design**: Optimized for various mobile device sizes.
+- **Modern UI/UX**: Smooth animations and intuitive navigation.
+- **Real-time Updates**: Immediate reflection of menu changes.
+- **Cross-platform Compatibility**: iOS and Android support.
+
+## Technical Specifications
+
+### Technology Stack
+
+- **React Native**: Cross-platform mobile development.
+- **TypeScript**: Type-safe development with interfaces.
+- **Expo**: Development platform and build tools.
+- **React Navigation**: Native stack navigation for screen management.
+
+### Key Dependencies
+
+- `@expo/vector-icons` - Comprehensive icon library.
+- `expo-linear-gradient` - Gradient background components.
+- `@react-navigation/native-stack` - Navigation solution.
+- `react-native` - Core framework components.
+
+## File Structure
+
+```
+src/
+│
+├── App.tsx                 # Main app component with navigation setup
+├── SplashScreen.tsx        # Authentication and guest access
+├── HomeScreenA.tsx         # Admin dashboard and management
+├── HomeScreenG.tsx         # Guest menu browsing interface
+├── MenuManagementScreen.tsx # Comprehensive menu management
+├── ProfileScreen.tsx       # User profile management
+├── SettingsScreen.tsx      # App configuration settings
+└── assets/                 # Static assets
+    ├── Logo(1).jpeg        # Admin logo
+    ├── Logo(2).jpeg        # Guest logo
+    └── gallery/            # Restaurant gallery images
+        ├── interior.jpg
+        ├── chef-cooking.jpg
+        ├── ingredients.jpg
+        ├── dining.jpg
+        ├── desserts.jpg
+        └── wine.jpg
+```
+
+## Design System
+
+### Color Palette
+
+#### Primary Colors
+
+primary-blue: #0557ef
+
+success-green: #06D6A0
+
+warning-orange: #FF9E0A
+
+error-red: #f0101b
+
+#### Neutral Colors
+
+white: #ffffff;
+
+background-gradient: ['#ffffff', '#f0f4ff'];
+
+text-dark: #222;
+
+text-gray: #666;
+
+### Typography Scale
+
+- **Header 1**: 28px, Weight: 700
+- **Header 2**: 24px, Weight: 700
+- **Header 3**: 20px, Weight: 700
+- **Body Large**: 18px, Weight: 700
+- **Body Regular**: 16px, Weight: 400
+- **Body Small**: 14px, Weight: 400
+- **Caption**: 12px, Weight: 500
+
+## React Native Components
+
+### Core Component Architecture
+
+#### 1. State Management
+
+- **useState**: Local component state management
+- **useMemo**: Optimized filtering and calculations
+- **Modal Management**: Controlled visibility for forms and filters
+
+### Key Component Features
+
+#### Authentication System
+
+- Password-protected admin access (Password: 2004)
+- Guest access without authentication.
+- Secure navigation between admin and guest views.
+
+#### Menu Management
+
+- **Operations**: Full create, read, update, delete functionality.
+- **Bulk Actions**: Toggle availability for multiple items.
+- **Advanced Filtering**: Multi-criteria filtering with search.
+- **Real-time Statistics**: Dynamic calculation of menu metrics.
+
+#### User Experience
+
+- **Smooth Animations**: Fade and slide transitions and bouncing.
+- **Form Validation**: Comprehensive input validation with error messages.
+- **Accessibility**: Proper labeling and touch targets.
+
+## Navigation
+
+### Stack Navigation Structure
+
+- **Splash Screen** → Admin Login or Guest Access
+- **Admin Flow**: HomeA → Menu Management → Profile → Settings
+- **Guest Flow**: HomeG → Full Menu → Profile → Settings
+- **Cross-navigation**: Admin can switch to guest view and back
+
+## Performance Optimization
+
+### Memoization Strategies
+
+- **useMemo**: For expensive calculations and filtering operations.
+- **FlatList Optimization**: Key extraction and render optimization.
+
+### Image Optimization
+
+- Local image assets with appropriate resolutions.
+- Efficient loading and caching strategies.
+- Progressive image loading where applicable.
+
+## Development Guidelines
+
+### Code Standards
+
+- **TypeScript**: Strict typing with comprehensive interfaces
+- **Component Structure**: Functional components with hooks
+- **Naming Conventions**: Descriptive variable and function names
+- **File Organization**: Logical separation of concerns
+
+### Best Practices
+
+- **Error Handling**: Comprehensive validation and user feedback
+- **User Experience**: Smooth transitions and loading states
+- **Accessibility**: Proper labeling and touch targets
+
+## Deployment Instructions
+
+### Expo Deployment
+
+1. **Build**:
+
+- npx create-expo-app Kitchen_Delicacies_Christoffel --template blank-typescript
+- cd Kitchen_Delicacies_Christoffel
+- code .
+- npx expo start
+
+## Support
+
+- **Developer**: Vishay Gosai (ST10478785)
+- **Restaurant**: Kitchen Delicacies - Chef Christoffel
+- **Contact**: Implementation-specific contact details
+
+## References
+Baymard Institute (2025) Ecommerce Design Examples. Available at: https://baymard.com/ecommerce-design-examples (Accessed: 5 August 2025).
+
+Freepik (2025) New modern realistic front view black iPhone mockup isolated white mobile template vector. Available at: https://www.freepik.com/free-vector/new-modern-realistic-front-view-black-iphone-mockup-isolated-white-mobile-template-vector_33632328.htm#fromView=keyword&page=1&position=0&uuid=c00f978c-d906-47d3-ada5-0f3df4e8234c&query=Phone+Silhouette (Accessed: 1 August 2025).
+
+React Navigation (2025) Navigating. Available at: https://reactnavigation.org/docs/navigating (Accessed: 10 August 2025).
+
+React Native (2025) Components and APIs. Available at: https://reactnative.dev/docs/components-and-apis (Accessed: 12 August 2025).
+
+React Native (2025) Getting Started - Prerequisites. Available at: https://reactnative.dev/docs/getting-started#prerequisites (Accessed: 12 August 2025).
+
+React Native (2025) Using a ListView. Available at: https://reactnative.dev/docs/using-a-listview (Accessed: 10 August 2025).
+
+Shopify Polaris (2025) Getting Started. Available at: https://polaris-react.shopify.com/getting-started (Accessed: 10 August 2025).
+
+Shopify Polaris (2025) Layout Design. Available at: https://polaris-react.shopify.com/design/layout (Accessed: 12 August 2025).
+
+Font Awesome (no date) Search results for 'r'. Available at: https://fontawesome.com/search?o=r (Accessed: 1 October 2025).
+
+Unsplash (no date) Homepage. Available at: https://unsplash.com/ (Accessed: 1 October 2025).
+
+Unsplash (no date) People inside eatery. Available at: https://unsplash.com/photos/people-inside-eatery-WWST6E8LxeE (Accessed: 1 October 2025).
+
+Unsplash (no date) Several bottles of wine are lined up on a shelf. Available at: https://unsplash.com/photos/several-bottles-of-wine-are-lined-up-on-a-shelf-PwPUaUpUHOs (Accessed: 1 October 2025).
+
+Unsplash (no date) Assorted vegetables (wtevVfGYwnM). Available at: https://unsplash.com/photos/assorted-vegetables-wtevVfGYwnM (Accessed: 1 October 2025).
+Unsplash (no date) Five gray spoons filled with assorted color powders near chilli. Available at: https://unsplash.com/photos/five-gray-spoons-filled-with-assorted-color-powders-near-chilli-vA1L1jRTM70 (Accessed: 1 October 2025).
+
+Unsplash (no date) Assorted vegetables (KUZnfk-2DSQ). Available at: https://unsplash.com/photos/assorted-vegetables-KUZnfk-2DSQ (Accessed: 1 October 2025).
+
+Unsplash (no date) Empty cups on tray. Available at: https://unsplash.com/photos/empty-cups-on-tray-GrPm7g3crwQ (Accessed: 1 October 2025).
+
+Unsplash (no date) White ceramic plates. Available at: https://unsplash.com/photos/white-ceramic-plates-0hAdietsUrE (Accessed: 1 October 2025).
+
+JavaScript Mastery (2025) React Native Course for Beginners in 2025 | Build a Full Stack React Native App. Available at: https://youtu.be/f8Z9JyB2EIE?si=Uk57MO0HYxF_joMW (Accessed: between 1 and 20 August 2025).
+
+Programming with Mosh (2023) React Tutorial for Beginners. Available at: https://youtu.be/SqcY0GlETPk?si=u9xWYPUc3rP1LEFz (Accessed: between 1 and 20 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/wbj-DuaL748?si=49R3Hfbjw6oTaho6 (Accessed: 8 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/kxrkQLTSdsc?si=7E4do4ym0sDyM531 (Accessed: 2 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/LKrX390fJMw?si=69gLkYov4KRgwtoZ (Accessed: 1 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/vk13GJi4Vd0?si=sBr6sF4NbIJQ84TC (Accessed: 4 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/JJR60QtgdsM?si=VXMbtFdNwMzn4xlF (Accessed: 8 August 2025).
+
+[Unknown Author] (no date) Video title unknown. Available at: https://youtu.be/fLIl6jypzkI?si=aYYjamEqKgIkAG2m (Accessed: 2 August 2025).
