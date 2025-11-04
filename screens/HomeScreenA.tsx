@@ -1,7 +1,7 @@
 // HomeScreenA.tsx : Admin Screen 
 // Imports
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, FlatList, TextInput, Alert, ScrollView, Image, Pressable, Modal, Switch, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,12 +9,14 @@ import { RootStackParamList } from '../App';
 import MenuManagementScreen from './MenuManagementScreen';
 import ProfileScreen from './ProfileScreen';
 import SettingsScreen from './SettingsScreen';
+// Import ImagePicker for selecting images from device gallery
+import * as ImagePicker from 'expo-image-picker';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomeA'>;
 type Props = { navigation: HomeScreenNavigationProp };
 
 /* Menu management interfaces */
-type Category = "Starter" | "Main" | "Dessert" | "Drink";
+type Category = "Starter" | "Main" | "Dessert" ;
 
 interface MenuItem {
   id: string;
@@ -29,9 +31,10 @@ interface MenuItem {
   preparationTime: number;
   calories?: number;
   spiceLevel: 0 | 1 | 2 | 3;
+  image?: ImageSourcePropType;
 }
 
-const categories: Category[] = ["Starter", "Main", "Dessert", "Drink"];
+const categories: Category[] = ["Starter", "Main", "Dessert"];
 
 /* Gallery Screen Component */
 const GalleryScreen: React.FC = () => {
@@ -71,25 +74,30 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   // Menu management state
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     {
-      id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
-      ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0
-    },
-    {
-      id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
-      ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1
-    },
-    {
-      id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
-      ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0
-    },
-    {
-      id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
-      ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0
-    },
-    {
-      id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
-      ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2
-    },
+    id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
+    ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
+    image: require('../assets/menu/tomato soup.jpg')
+  },
+  {
+    id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
+    ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
+    image: require('../assets/menu/grilled chicken.jpg')
+  },
+  {
+    id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
+    ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
+    image: require('../assets/menu/chocolate mousse.jpg')
+  },
+  {
+    id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
+    ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
+    image: require('../assets/menu/caesar salad.jpg')
+  },
+  {
+    id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
+    ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
+    image: require('../assets/menu/seafood platter.jpg')
+  },
   ]);
 
   // Form state
@@ -103,6 +111,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   const [newItemSpiceLevel, setNewItemSpiceLevel] = useState<0 | 1 | 2 | 3>(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeScreen, setActiveScreen] = useState('dashboard');
+  // State for storing the selected image URI when adding a new menu item
+  const [newItemImage, setNewItemImage] = useState<string | null>(null);
 
   // Filter state
   const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
@@ -158,6 +168,30 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     return { total, availableItems, totalRevenue, avgPrice, avgByCourse, min, max, mostPopularCourse };
   }, [menuItems]);
 
+  /* Function to pick an image from device gallery */
+  const pickImage = async () => {
+    // Request permission to access the media library
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert("Permission Required", "Permission to access camera roll is required to add images.");
+      return;
+    }
+
+    // Launch image picker
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    // If image was selected successfully, set the image URI
+    if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+      setNewItemImage(pickerResult.assets[0].uri);
+    }
+  };
+
   /* Menu Management Functions */
   const addMenuItem = () => {
     if (!newItemName || !newItemDesc || !newItemPrice) {
@@ -171,6 +205,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
+    // Create new menu item with optional image
     const newMenuItem: MenuItem = {
       id: Date.now().toString(),
       name: newItemName,
@@ -183,6 +218,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       preparationTime: parseInt(newItemPrepTime) || 15,
       calories: newItemCalories ? parseInt(newItemCalories) : undefined,
       spiceLevel: newItemSpiceLevel,
+      // Include image if one was selected
+      image: newItemImage ? { uri: newItemImage } : undefined,
     };
 
     setMenuItems(prev => [...prev, newMenuItem]);
@@ -199,6 +236,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     setNewItemPrepTime("");
     setNewItemCalories("");
     setNewItemSpiceLevel(0);
+    // Reset the image selection when form is cleared
+    setNewItemImage(null);
   };
 
   const toggleAvailability = (id: string) => {
@@ -212,9 +251,14 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     ]);
   };
 
-  /* Menu Item Renderer */
+  /* Menu Item Renderer with Image Display */
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.menuCard}>
+      {/* Display menu item image if available */}
+      {item.image && (
+        <Image source={item.image} style={styles.menuItemImage} />
+      )}
+      
       <View style={styles.cardHeader}>
         <View style={styles.itemInfo}>
           <Text style={styles.itemName}>{item.name}</Text>
@@ -577,6 +621,27 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
 
               <ScrollView style={styles.modalBody}>
+                {/* Image Selection Section */}
+                <Text style={styles.inputLabel}>Item Image (Optional)</Text>
+                <View style={styles.imageSelectionContainer}>
+                  {newItemImage ? (
+                    <View style={styles.selectedImageContainer}>
+                      <Image source={{ uri: newItemImage }} style={styles.selectedImage} />
+                      <TouchableOpacity 
+                        style={styles.changeImageButton} 
+                        onPress={pickImage}
+                      >
+                        <Text style={styles.changeImageText}>Change Image</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
+                      <Ionicons name="camera-outline" size={32} color="#0557ef" />
+                      <Text style={styles.addImageText}>Add Image from Gallery</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
                 <TextInput style={styles.input} placeholder="Item Name" value={newItemName} onChangeText={setNewItemName} />
                 <TextInput style={[styles.input, styles.textArea]} placeholder="Description" value={newItemDesc} onChangeText={setNewItemDesc} multiline numberOfLines={3} />
 
@@ -696,7 +761,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-// Updated StyleSheet with new styles
+// Updated StyleSheet with new styles for images
 const styles = StyleSheet.create({
   // Layout
   gradient: { flex: 1 },
@@ -720,144 +785,158 @@ const styles = StyleSheet.create({
   activeFiltersTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
   activeFiltersRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
   activeFilterTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0557ef', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginRight: 8, marginBottom: 4 },
-  activeFilterText: { color: '#fff', fontSize: 12, fontWeight: '500', marginRight: 6 },
-  clearAllButton: { backgroundColor: '#f8f9fa', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: '#0557ef' },
-  clearAllText: { color: '#0557ef', fontSize: 12, fontWeight: '500' },
-  filteredCount: { fontSize: 14, color: '#666', fontWeight: '500' },
-
-  // Buttons
-  guestButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#06D6A0', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  guestButtonText: { color: '#fff', marginLeft: 6, fontWeight: '600', fontSize: 14 },
-  actionButton: { flex: 1, alignItems: 'center', backgroundColor: '#0557ef', padding: 16, borderRadius: 12, marginHorizontal: 4 },
-  actionText: { color: '#fff', marginTop: 8, fontWeight: '600', fontSize: 12, textAlign: 'center' },
+  activeFilterText: { color: '#fff', fontSize: 12, marginRight: 6 },
+  clearAllButton: { marginLeft: 'auto' },
+  clearAllText: { color: '#0557ef', fontSize: 14, fontWeight: '600' },
+  filterButton: { flexDirection: 'row', alignItems: 'center' },
+  filterText: { color: '#0557ef', fontSize: 14, fontWeight: '600', marginLeft: 4 },
 
   // Stats
   statsContainer: { padding: 16 },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 16 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#222', marginBottom: 16 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  statCard: { width: '48%', backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
-  statNumber: { fontSize: 24, fontWeight: '700', color: '#333', marginTop: 8, marginBottom: 4 },
-  statLabel: { fontSize: 12, color: '#666', textAlign: 'center' },
-  additionalStatValue: { fontSize: 13, fontWeight: '700', color: '#090909', marginBottom: 8 },
+  statCard: { width: '48%', backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  statNumber: { fontSize: 24, fontWeight: '700', color: '#222', marginVertical: 4 },
+  statLabel: { fontSize: 14, color: '#666', fontWeight: '600' },
+  additionalStatValue: { fontSize: 12, color: '#666', marginTop: 2 },
 
-  // Containers
+  // Actions
   actionsContainer: { padding: 16 },
   actionsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  menuContainer: { padding: 16 },
-  activityContainer: { padding: 16, paddingBottom: 32 },
-
-  // Lists
-  listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  listContent: { paddingBottom: 16 },
-  filterButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f4ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#0557ef' },
-  filterText: { color: '#0557ef', marginLeft: 4, fontWeight: '500', fontSize: 14 },
+  actionButton: { backgroundColor: '#0557ef', padding: 16, borderRadius: 12, alignItems: 'center', width: '30%' },
+  actionText: { color: '#fff', fontSize: 12, fontWeight: '600', marginTop: 8, textAlign: 'center' },
 
   // Menu Items
-  menuCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
+  menuContainer: { padding: 16 },
+  listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  filteredCount: { fontSize: 14, color: '#666' },
+  listContent: { paddingBottom: 16 },
+  menuCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  // Style for menu item images
+  menuItemImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 12 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   itemInfo: { flex: 1 },
-  itemName: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 4 },
-  categoryBadge: { backgroundColor: '#f0f4ff', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, alignSelf: 'flex-start' },
+  itemName: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 4 },
+  categoryBadge: { backgroundColor: '#e3f2fd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
   categoryText: { fontSize: 12, fontWeight: '600', color: '#0557ef' },
-  itemPrice: { fontSize: 18, fontWeight: '700', color: '#06D6A0', marginLeft: 8 },
+  itemPrice: { fontSize: 18, fontWeight: '700', color: '#0557ef', marginLeft: 8 },
   itemDescription: { fontSize: 14, color: '#666', marginBottom: 12, lineHeight: 20 },
-  itemDetails: { marginBottom: 12 },
-  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  itemDetails: { marginBottom: 16 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   detailIcon: { marginLeft: 12 },
   detailText: { fontSize: 12, color: '#666', marginLeft: 4 },
-  ingredients: { fontSize: 12, color: '#888', fontStyle: 'italic', marginTop: 4 },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 },
-  tag: { backgroundColor: '#f0f0f0', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4, marginRight: 6, marginBottom: 4 },
-  tagText: { fontSize: 10, color: '#666', fontWeight: '500' },
+  ingredients: { fontSize: 12, color: '#666', fontStyle: 'italic', marginBottom: 8 },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
+  tag: { backgroundColor: '#f0f4ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginRight: 6, marginBottom: 4 },
+  tagText: { fontSize: 10, fontWeight: '600', color: '#0557ef' },
   cardActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   availabilityContainer: { flexDirection: 'row', alignItems: 'center' },
   availabilityText: { fontSize: 14, fontWeight: '600', marginLeft: 8 },
   actionButtons: { flexDirection: 'row' },
-  editButton: { backgroundColor: '#0557ef', padding: 8, borderRadius: 6, marginRight: 8 },
+  editButton: { backgroundColor: '#FF9E0A', padding: 8, borderRadius: 6, marginRight: 8 },
   deleteButton: { backgroundColor: '#f0101b', padding: 8, borderRadius: 6 },
-
-  // Activity
-  activityList: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
-  activityItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
-  activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
-  activityText: { flex: 1, fontSize: 14, color: '#333' },
-  activityTime: { fontSize: 12, color: '#666' },
 
   // Empty State
   emptyState: { alignItems: 'center', padding: 40, backgroundColor: '#fff', borderRadius: 12 },
-  emptyStateText: { fontSize: 16, fontWeight: '600', color: '#333', marginTop: 12 },
-  emptyStateSubtext: { fontSize: 14, color: '#666', textAlign: 'center', marginTop: 4 },
-  resetFiltersButton: { backgroundColor: '#0557ef', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, marginTop: 12 },
-  resetFiltersText: { color: '#fff', fontWeight: '600' },
+  emptyStateText: { fontSize: 18, fontWeight: '600', color: '#666', marginTop: 16 },
+  emptyStateSubtext: { fontSize: 14, color: '#999', textAlign: 'center', marginTop: 8, lineHeight: 20 },
+  resetFiltersButton: { backgroundColor: '#0557ef', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, marginTop: 16 },
+  resetFiltersText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 
-  // Modal
-  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
-  modalBody: { padding: 20 },
+  // Gallery
+  galleryPreviewContainer: { padding: 16 },
+  galleryPreviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  viewAllButton: { flexDirection: 'row', alignItems: 'center' },
+  viewAllText: { color: '#0557ef', fontSize: 14, fontWeight: '600', marginRight: 4 },
+  galleryPreviewRow: { flexDirection: 'row' },
+  galleryPreviewItem: { width: 200, backgroundColor: '#fff', borderRadius: 12, marginRight: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  galleryPreviewImage: { width: '100%', height: 120, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
+  galleryPreviewInfo: { padding: 12 },
+  galleryPreviewTitle: { fontSize: 14, fontWeight: '600', color: '#222', marginBottom: 4 },
+  galleryPreviewDescription: { fontSize: 12, color: '#666' },
 
-  // Form Inputs
-  input: { backgroundColor: '#f8f9fa', borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 16 },
-  textArea: { minHeight: 80, textAlignVertical: 'top' },
-  inputLabel: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8, marginTop: 4 },
-  categoryRow: { flexDirection: 'row', marginBottom: 16 },
-  categoryOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
-  selectedCategory: { backgroundColor: '#0557ef' },
-  categoryOptionText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
-  selectedCategoryText: { color: '#fff', fontSize: 12 }, // Smaller font size
-  spiceLevelContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  spiceLevelOption: { flex: 1, padding: 12, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginHorizontal: 4 },
-  selectedSpiceLevel: { backgroundColor: '#f0101b' },
-  spiceLevelText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
-  selectedSpiceLevelText: { color: '#fff', fontSize: 12 }, // Smaller font size
-  saveButton: { backgroundColor: '#06D6A0', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 8 },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  // Activity
+  activityContainer: { padding: 16 },
+  activityList: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
+  activityItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
+  activityText: { flex: 1, fontSize: 14, color: '#333' },
+  activityTime: { fontSize: 12, color: '#999' },
 
+  // Screen Components
+  screenContainer: { flex: 1, padding: 16 },
+  screenTitle: { fontSize: 24, fontWeight: '700', color: '#222', marginBottom: 8 },
+  screenSubtitle: { fontSize: 16, color: '#666', marginBottom: 24 },
 
-  // Filter Modal Styles
-  filterOption: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f8f9fa', marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: '#e0e0e0' },
-  activeFilterOption: { backgroundColor: '#0557ef', borderColor: '#0557ef' },
-  filterOptionText: { fontSize: 12, fontWeight: '500', color: '#666' }, // Smaller font size
-  activeFilterOptionText: { color: '#fff', fontSize: 12 }, // Smaller font size
-  availabilityFilterRow: { flexDirection: 'row', marginBottom: 16 },
-  filterActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  resetButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginRight: 8, borderWidth: 1, borderColor: '#e0e0e0' },
-  resetButtonText: { color: '#666', fontSize: 16, fontWeight: '600' },
-  applyButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#0557ef', alignItems: 'center', marginLeft: 8 },
-  applyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  // Gallery Styles
+  galleryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  galleryItem: { width: '48%', backgroundColor: '#fff', borderRadius: 12, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  galleryImage: { width: '100%', height: 150, borderTopLeftRadius: 12, borderTopRightRadius: 12 },
+  galleryInfo: { padding: 12 },
+  galleryTitle: { fontSize: 14, fontWeight: '600', color: '#222', marginBottom: 4 },
+  galleryDescription: { fontSize: 12, color: '#666' },
 
   // Navigation
   bottomNav: { flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingVertical: 8 },
   navItem: { flex: 1, alignItems: 'center', paddingVertical: 8 },
-  activeNavItem: {},
+  activeNavItem: { },
   navText: { fontSize: 12, color: '#666', marginTop: 4 },
   activeNavText: { color: '#0557ef', fontWeight: '600' },
 
-  // Screen Containers
-  screenContainer: { flex: 1, padding: 16 },
-  screenTitle: { fontSize: 24, fontWeight: '700', color: '#333', marginBottom: 8 },
-  screenSubtitle: { fontSize: 16, color: '#666', marginBottom: 16 },
+  // Modal
+  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: '#222' },
+  modalBody: { padding: 20 },
 
-  // Gallery Styles
-  galleryPreviewContainer: { padding: 16 },
-  galleryPreviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  viewAllButton: { flexDirection: 'row', alignItems: 'center' },
-  viewAllText: { color: '#0557ef', fontWeight: '600', marginRight: 4 },
-  galleryPreviewRow: { flexDirection: 'row' },
-  galleryPreviewItem: { width: 200, backgroundColor: '#fff', borderRadius: 12, marginRight: 12, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
-  galleryPreviewImage: { width: '100%', height: 120 },
-  galleryPreviewInfo: { padding: 12 },
-  galleryPreviewTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4 },
-  galleryPreviewDescription: { fontSize: 12, color: '#666' },
+  // Form Elements
+  input: { borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
+  textArea: { minHeight: 80, textAlignVertical: 'top' },
+  inputLabel: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 8 },
+  
+  // Image Selection Styles
+  imageSelectionContainer: { marginBottom: 16 },
+  addImageButton: { borderWidth: 2, borderColor: '#0557ef', borderStyle: 'dashed', borderRadius: 8, padding: 20, alignItems: 'center', justifyContent: 'center' },
+  addImageText: { color: '#0557ef', fontSize: 14, fontWeight: '600', marginTop: 8 },
+  selectedImageContainer: { alignItems: 'center' },
+  selectedImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 12 },
+  changeImageButton: { backgroundColor: '#0557ef', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6 },
+  changeImageText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 
-  // Full Gallery Styles
-  galleryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  galleryItem: { width: '48%', backgroundColor: '#fff', borderRadius: 12, marginBottom: 16, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3 },
-  galleryImage: { width: '100%', height: 150 },
-  galleryInfo: { padding: 12 },
-  galleryTitle: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
-  galleryDescription: { fontSize: 14, color: '#666' },
+  // Category Selection
+  categoryRow: { flexDirection: 'row', marginBottom: 16 },
+  categoryOption: { flex: 1, padding: 12, marginRight: 8, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center' },
+  selectedCategory: { backgroundColor: '#0557ef' },
+  categoryOptionText: { fontSize: 14, fontWeight: '600', color: '#666' },
+  selectedCategoryText: { color: '#fff' },
+
+  // Spice Level
+  spiceLevelContainer: { flexDirection: 'row', marginBottom: 16 },
+  spiceLevelOption: { flex: 1, padding: 12, marginRight: 8, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center' },
+  selectedSpiceLevel: { backgroundColor: '#0557ef' },
+  spiceLevelText: { fontSize: 14, fontWeight: '600', color: '#666' },
+  selectedSpiceLevelText: { color: '#fff' },
+
+  // Filter Options
+  filterOption: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: '#f8f9fa', marginRight: 8, marginBottom: 8 },
+  activeFilterOption: { backgroundColor: '#0557ef' },
+  filterOptionText: { fontSize: 14, fontWeight: '600', color: '#666' },
+  activeFilterOptionText: { color: '#fff' },
+  availabilityFilterRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
+
+  // Buttons
+  saveButton: { backgroundColor: '#0557ef', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 8 },
+  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  guestButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0557ef', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
+  guestButtonText: { color: '#fff', fontSize: 14, fontWeight: '600', marginLeft: 6 },
+
+  // Filter Actions
+  filterActions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  resetButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#f8f9fa', alignItems: 'center', marginRight: 8 },
+  resetButtonText: { color: '#666', fontSize: 16, fontWeight: '600' },
+  applyButton: { flex: 1, padding: 16, borderRadius: 8, backgroundColor: '#0557ef', alignItems: 'center' },
+  applyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
 
 export default HomeScreenA;

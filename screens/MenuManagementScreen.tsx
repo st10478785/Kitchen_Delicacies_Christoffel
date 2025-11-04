@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 /* Menu Management Interfaces
   Defines the structure for menu items and categories */
-type Category = "Starter" | "Main" | "Dessert" | "Drink";
+type Category = "Starter" | "Main" | "Dessert" ;
 
 interface MenuItem {
     id: string;
@@ -74,7 +74,7 @@ const MenuManagementScreen: React.FC = () => {
     });
 
     // Available categories and dietary options
-    const categories: Category[] = ["Starter", "Main", "Dessert", "Drink",];
+    const categories: Category[] = ["Starter", "Main", "Dessert", ];
     const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free', 'Keto', 'Low-Carb'];
 
     /* Filter and Search Functionality

@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-type Category = "Starter" | "Main" | "Dessert" | "Drink";
+type Category = "Starter" | "Main" | "Dessert" ;
 
 // Menu management state
 interface MenuItem {
@@ -23,7 +23,7 @@ interface MenuItem {
   spiceLevel: 0 | 1 | 2 | 3;
 }
 
-const categories: Category[] = ["Starter", "Main", "Dessert", "Drink",];
+const categories: Category[] = ["Starter", "Main", "Dessert", ];
 
 const mockMenu: MenuItem[] = [
   //Sample data
