@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 type Category = "Starter" | "Main" | "Dessert";
 
-// Menu management state with image support
+// Menu management state with image support and additional properties
 interface MenuItem {
   id: string;
   name: string;
@@ -71,7 +71,7 @@ const mockMenu: MenuItem[] = [
   },
 ];
 
-// Gallery Screen Component for Guest View
+/* Gallery Screen Component for Guest View, it displays a grid of images about the restaurant */
 const GalleryScreenG: React.FC = () => {
   // Gallery images data showcasing restaurant ambiance and food
   const galleryImages: GalleryItem[] = [
@@ -146,7 +146,7 @@ const GalleryScreenG: React.FC = () => {
       <Text style={styles.screenTitle}>Restaurant Gallery</Text>
       <Text style={styles.screenSubtitle}>Experience our culinary world through images</Text>
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid, displaying a grid of images */}
       <FlatList
         data={galleryImages}
         renderItem={renderGalleryItem}
@@ -157,7 +157,7 @@ const GalleryScreenG: React.FC = () => {
         columnWrapperStyle={styles.galleryRow}
       />
 
-      {/* Image Detail Modal */}
+      {/* Image Detail Modal for selected image */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -193,8 +193,9 @@ const GalleryScreenG: React.FC = () => {
   );
 };
 
-// HomeScreenG components
+/* Guest Dashboard, it allows the guest to explore the menu and gallery */
 const HomeScreenG: React.FC = () => {
+  // Menu management state, shows all the hardcoded menu items initially
   const [menuItems] = useState(mockMenu);
   const [cartItems, setCartItems] = useState<string[]>([]);
   const [activeScreen, setActiveScreen] = useState('dashboard');
@@ -234,9 +235,7 @@ const HomeScreenG: React.FC = () => {
   const removeFromCart = (itemId: string) => setCartItems(prev => prev.filter(id => id !== itemId));
   const isInCart = (itemId: string) => cartItems.includes(itemId);
 
-  /* Statistics Calculation
-    Computes various metrics about the menu for display
-    Uses useMemo to avoid recalculating on every render */
+  /* Menu Statistics, calculates various statistics based on the menu items */
   const stats = useMemo(() => {
     const total = menuItems.length;
     const availableItems = menuItems.filter(item => item.available).length;
@@ -265,8 +264,7 @@ const HomeScreenG: React.FC = () => {
     return { total, availableItems, totalValue, avgPrice, minPrice, maxPrice, avgByCourse, mostPopularCourse, mostPopular };
   }, [menuItems]);
 
-  /* Gallery Preview Component
-    Shows a preview of gallery images on the dashboard */
+  /* Gallery Preview Component, Shows a preview of gallery images on the dashboard */
   const GalleryPreview = () => {
     const previewImages = [
       { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
@@ -287,6 +285,7 @@ const HomeScreenG: React.FC = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Scrollable row of gallery images */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.galleryPreviewRow}>
             {previewImages.map((item) => (
@@ -308,8 +307,7 @@ const HomeScreenG: React.FC = () => {
     );
   };
 
-  /* Menu Item Renderer with Image Display
-    Renders individual menu items with their images and details */
+  /* Menu Item Renderer with Image Display */
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.menuCard}>
       {/* Display menu item image if available */}
@@ -349,6 +347,7 @@ const HomeScreenG: React.FC = () => {
           <Text style={styles.ingredients}>Ingredients: {item.ingredients.join(', ')}</Text>
         )}
 
+        {/* Display dietary tags */}
         {item.dietaryTags.length > 0 && (
           <View style={styles.tagsContainer}>
             {item.dietaryTags.map(tag => (
@@ -360,6 +359,7 @@ const HomeScreenG: React.FC = () => {
         )}
       </View>
 
+      {/* Availability and Cart Action Buttons */}
       <View style={styles.cardActions}>
         <View style={styles.availabilityContainer}>
           <Text style={[styles.availabilityText, { color: item.available ? '#06D6A0' : '#f0101b' }]}>
@@ -367,6 +367,7 @@ const HomeScreenG: React.FC = () => {
           </Text>
         </View>
 
+        {/* Display add to cart and remove from cart buttons */}
         <View style={styles.guestActions}>
           {isInCart(item.id) ? (
             <TouchableOpacity style={styles.removeFromCartButton} onPress={() => removeFromCart(item.id)}>
@@ -409,14 +410,13 @@ const HomeScreenG: React.FC = () => {
     { key: 'settings', icon: 'settings', label: 'Settings' },
   ];
 
-  /* Screen Content Renderer
-    Handles rendering different screens based on activeScreen state */
+  /* Screen Content Renderer for different screens */
   const renderScreenContent = () => {
     switch (activeScreen) {
       case 'dashboard':
         return (
           <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-            {/* Header Section */}
+            {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <Image source={require('../assets/Logo(2).jpeg')} style={styles.logo} />
@@ -435,7 +435,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             </View>
 
-            {/* Search Bar */}
+            {/* Search bar */}
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={20} color="#666" />
               <TextInput
@@ -451,7 +451,7 @@ const HomeScreenG: React.FC = () => {
               )}
             </View>
 
-            {/* Active Filters Display */}
+            {/* Active Filters Display and Clear button */}
             {(filterCategory !== 'All' || filterAvailability !== 'All') && (
               <View style={styles.activeFiltersContainer}>
                 <Text style={styles.activeFiltersTitle}>Active Filters:</Text>
@@ -481,7 +481,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             )}
 
-            {/* Quick Stats Overview */}
+            {/* Quick Stats, which displays total items, available items, and average prices by course */}
             <View style={styles.statsContainer}>
               <Text style={styles.sectionTitle}>Quick Overview</Text>
               <View style={styles.statsGrid}>
@@ -514,7 +514,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             </View>
 
-            {/* Quick Actions Section */}
+            {/* Quick Actions, which includes filtering items, accessing the gallery, and viewing order history */}
             <View style={styles.actionsContainer}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
               <View style={styles.actionsRow}>
@@ -561,7 +561,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             )}
 
-            {/* Menu Items List */}
+            {/* Menu Items, which displays the filtered menu items */}
             <View style={styles.menuContainer}>
               <View style={styles.listHeader}>
                 <Text style={styles.sectionTitle}>
@@ -578,7 +578,9 @@ const HomeScreenG: React.FC = () => {
                 <View style={styles.emptyState}>
                   <Ionicons name="search-outline" size={48} color="#ccc" />
                   <Text style={styles.emptyStateText}>No menu items found</Text>
-                  <Text style={styles.emptyStateSubtext}>Try adjusting your filters or search terms</Text>
+                  <Text style={styles.emptyStateSubtext}>
+                    Try adjusting your filters or search terms
+                  </Text>
                   <TouchableOpacity style={styles.resetFiltersButton} onPress={resetFilters}>
                     <Text style={styles.resetFiltersText}>Reset Filters</Text>
                   </TouchableOpacity>
@@ -597,7 +599,7 @@ const HomeScreenG: React.FC = () => {
             {/* Gallery Preview Section */}
             <GalleryPreview />
 
-            {/* Cart Summary Section */}
+            {/* Cart Summary Section (if there are items in the cart) and View Cart Button */}
             {cartItems.length > 0 && (
               <View style={styles.cartSummary}>
                 <Text style={styles.cartSummaryTitle}>Your Cart</Text>
@@ -610,6 +612,7 @@ const HomeScreenG: React.FC = () => {
           </ScrollView>
         );
 
+      // Full Menu Screen
       case 'menu':
         return (
           <View style={styles.screenContainer}>
@@ -627,9 +630,11 @@ const HomeScreenG: React.FC = () => {
           </View>
         );
 
+      // Gallery Screen  
       case 'gallery':
         return <GalleryScreenG />;
 
+      // Profile Screen, showing guest preferences  
       case 'profile':
         return (
           <View style={styles.screenContainer}>
@@ -665,6 +670,7 @@ const HomeScreenG: React.FC = () => {
           </View>
         );
 
+      // Settings Screen, allowing guest to customize app settings
       case 'settings':
         return (
           <View style={styles.screenContainer}>
@@ -698,6 +704,7 @@ const HomeScreenG: React.FC = () => {
     }
   };
 
+  // Main render, including navigation and modals
   return (
     <LinearGradient colors={['#ffffff', '#f0f4ff']} style={styles.gradient}>
       <SafeAreaView style={styles.container}>
@@ -707,6 +714,7 @@ const HomeScreenG: React.FC = () => {
 
         {renderScreenContent()}
 
+        {/* Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
           {navItems.map((navItem) => (
             <TouchableOpacity
@@ -738,13 +746,16 @@ const HomeScreenG: React.FC = () => {
               </View>
 
               <ScrollView style={styles.modalBody}>
+                {/* Category Filter */}
                 <Text style={styles.inputLabel}>Category</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryRow}>
                   <Pressable
                     style={[styles.filterOption, filterCategory === 'All' && styles.activeFilterOption]}
                     onPress={() => setFilterCategory('All')}
                   >
-                    <Text style={[styles.filterOptionText, filterCategory === 'All' && styles.activeFilterOptionText]}>All</Text>
+                    <Text style={[styles.filterOptionText, filterCategory === 'All' && styles.activeFilterOptionText]}>
+                      All
+                    </Text>
                   </Pressable>
                   {categories.map(category => (
                     <Pressable
@@ -752,11 +763,14 @@ const HomeScreenG: React.FC = () => {
                       style={[styles.filterOption, filterCategory === category && styles.activeFilterOption]}
                       onPress={() => setFilterCategory(category)}
                     >
-                      <Text style={[styles.filterOptionText, filterCategory === category && styles.activeFilterOptionText]}>{category}</Text>
+                      <Text style={[styles.filterOptionText, filterCategory === category && styles.activeFilterOptionText]}>
+                        {category}
+                      </Text>
                     </Pressable>
                   ))}
                 </ScrollView>
 
+                {/* Availability Filter, which allows users to filter menu items by availability */}
                 <Text style={styles.inputLabel}>Availability</Text>
                 <View style={styles.availabilityFilterRow}>
                   {(['All', 'Available', 'Unavailable'] as const).map(availability => (
@@ -765,11 +779,14 @@ const HomeScreenG: React.FC = () => {
                       style={[styles.filterOption, filterAvailability === availability && styles.activeFilterOption]}
                       onPress={() => setFilterAvailability(availability)}
                     >
-                      <Text style={[styles.filterOptionText, filterAvailability === availability && styles.activeFilterOptionText]}>{availability}</Text>
+                      <Text style={[styles.filterOptionText, filterAvailability === availability && styles.activeFilterOptionText]}>
+                        {availability}
+                      </Text>
                     </Pressable>
                   ))}
                 </View>
 
+                {/* Action Buttons, which allows users to apply or reset filters */}
                 <View style={styles.filterActions}>
                   <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
                     <Text style={styles.resetButtonText}>Reset Filters</Text>
@@ -787,7 +804,7 @@ const HomeScreenG: React.FC = () => {
   );
 };
 
-// Optimized StyleSheet with new gallery styles
+// StyleSheet
 const styles = StyleSheet.create({
   // Layout
   gradient: { flex: 1 },
@@ -999,7 +1016,7 @@ const styles = StyleSheet.create({
   galleryPreviewTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4 },
   galleryPreviewDescription: { fontSize: 12, color: '#666' },
 
-  // Full Gallery & Modal Styles
+  // Full Gallery Styles
   galleryGrid: { padding: 8 },
   galleryRow: { justifyContent: 'space-between', marginBottom: 8 },
   galleryItem: {
@@ -1017,6 +1034,7 @@ const styles = StyleSheet.create({
   },
   galleryCategoryText: { fontSize: 10, fontWeight: '500', color: '#0557ef' },
 
+  // Image Modal Styles
   imageModalContainer: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'
   },
