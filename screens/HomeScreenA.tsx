@@ -833,7 +833,7 @@ const styles = StyleSheet.create({
   availabilityContainer: { flexDirection: 'row', alignItems: 'center' },
   availabilityText: { fontSize: 14, fontWeight: '600', marginLeft: 8 },
   actionButtons: { flexDirection: 'row' },
-  editButton: { backgroundColor: '#FF9E0A', padding: 8, borderRadius: 6, marginRight: 8 },
+  editButton: { backgroundColor: '#0557ef', padding: 8, borderRadius: 6, marginRight: 8 },
   deleteButton: { backgroundColor: '#f0101b', padding: 8, borderRadius: 6 },
 
   // Empty State
