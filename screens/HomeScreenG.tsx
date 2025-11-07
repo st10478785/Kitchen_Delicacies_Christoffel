@@ -1,13 +1,13 @@
 // HomeScreenG.tsx : Guest view 
 // Imports
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image, ScrollView, Pressable, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, Image, ScrollView, Pressable, TextInput, Modal, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-type Category = "Starter" | "Main" | "Dessert" ;
+type Category = "Starter" | "Main" | "Dessert";
 
-// Menu management state
+// Menu management state with image support
 interface MenuItem {
   id: string;
   name: string;
@@ -21,33 +21,177 @@ interface MenuItem {
   preparationTime: number;
   calories?: number;
   spiceLevel: 0 | 1 | 2 | 3;
+  // Add image property to interface for displaying menu item images
+  image?: ImageSourcePropType;
 }
 
-const categories: Category[] = ["Starter", "Main", "Dessert", ];
+// Gallery item interface for restaurant gallery
+interface GalleryItem {
+  id: string;
+  title: string;
+  image: ImageSourcePropType;
+  description: string;
+  category?: string;
+}
 
+const categories: Category[] = ["Starter", "Main", "Dessert",];
+
+// Updated mock menu data with image references
 const mockMenu: MenuItem[] = [
-  //Sample data
+  // Sample data with images from assets folder
   {
     id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
-    ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0
+    ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
+    // Add image reference for tomato soup
+    image: require('../assets/menu/tomato soup.jpg')
   },
   {
     id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
-    ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1
+    ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
+    // Add image reference for grilled chicken
+    image: require('../assets/menu/grilled chicken.jpg')
   },
   {
     id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
-    ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0
+    ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
+    // Add image reference for chocolate mousse
+    image: require('../assets/menu/chocolate mousse.jpg')
   },
   {
     id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
-    ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0
+    ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
+    // Add image reference for caesar salad
+    image: require('../assets/menu/caesar salad.jpg')
   },
   {
     id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
-    ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2
+    ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
+    // Add image reference for seafood platter
+    image: require('../assets/menu/seafood platter.jpg')
   },
 ];
+
+// Gallery Screen Component for Guest View
+const GalleryScreenG: React.FC = () => {
+  // Gallery images data showcasing restaurant ambiance and food
+  const galleryImages: GalleryItem[] = [
+    {
+      id: '1',
+      title: 'Restaurant Interior',
+      image: require('../assets/gallery/interior.jpg'),
+      description: 'Our cozy and elegant dining area with comfortable seating',
+      category: 'Ambiance'
+    },
+    {
+      id: '2',
+      title: 'Chef in Action',
+      image: require('../assets/gallery/chef-cooking.jpg'),
+      description: 'Master chef Christoffel preparing your meal with passion',
+      category: 'Team'
+    },
+    {
+      id: '3',
+      title: 'Fresh Ingredients',
+      image: require('../assets/gallery/ingredients.jpg'),
+      description: 'Daily fresh ingredients sourced from local markets',
+      category: 'Quality'
+    },
+    {
+      id: '4',
+      title: 'Dining Experience',
+      image: require('../assets/gallery/dining.jpg'),
+      description: 'Elegant dining atmosphere perfect for any occasion',
+      category: 'Ambiance'
+    },
+    {
+      id: '5',
+      title: 'Dessert Selection',
+      image: require('../assets/gallery/desserts.jpg'),
+      description: 'Our signature desserts crafted with perfection',
+      category: 'Food'
+    },
+    {
+      id: '6',
+      title: 'Wine Collection',
+      image: require('../assets/gallery/wine.jpg'),
+      description: 'Premium wine selection to complement your meal',
+      category: 'Beverages'
+    },
+  ];
+
+  // State for selected image
+  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+
+  // Render individual gallery item
+  const renderGalleryItem = ({ item }: { item: GalleryItem }) => (
+    <TouchableOpacity
+      style={styles.galleryItem}
+      onPress={() => setSelectedImage(item)}
+    >
+      <Image source={item.image} style={styles.galleryImage} />
+      <View style={styles.galleryInfo}>
+        <Text style={styles.galleryTitle}>{item.title}</Text>
+        <Text style={styles.galleryDescription}>{item.description}</Text>
+        {item.category && (
+          <View style={styles.galleryCategoryTag}>
+            <Text style={styles.galleryCategoryText}>{item.category}</Text>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.screenContainer}>
+      <Text style={styles.screenTitle}>Restaurant Gallery</Text>
+      <Text style={styles.screenSubtitle}>Experience our culinary world through images</Text>
+
+      {/* Gallery Grid */}
+      <FlatList
+        data={galleryImages}
+        renderItem={renderGalleryItem}
+        keyExtractor={item => item.id}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.galleryGrid}
+        columnWrapperStyle={styles.galleryRow}
+      />
+
+      {/* Image Detail Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={!!selectedImage}
+        onRequestClose={() => setSelectedImage(null)}
+      >
+        <View style={styles.imageModalContainer}>
+          <View style={styles.imageModalContent}>
+            {selectedImage && (
+              <>
+                <Image source={selectedImage.image} style={styles.modalImage} />
+                <View style={styles.modalImageInfo}>
+                  <Text style={styles.modalImageTitle}>{selectedImage.title}</Text>
+                  <Text style={styles.modalImageDescription}>{selectedImage.description}</Text>
+                  {selectedImage.category && (
+                    <View style={styles.modalCategoryTag}>
+                      <Text style={styles.modalCategoryText}>{selectedImage.category}</Text>
+                    </View>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.closeModalButton}
+                  onPress={() => setSelectedImage(null)}
+                >
+                  <Ionicons name="close" size={24} color="#fff" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+};
 
 // HomeScreenG components
 const HomeScreenG: React.FC = () => {
@@ -59,7 +203,9 @@ const HomeScreenG: React.FC = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  /* Filter and Search Functionality */
+  /* Filter and Search Functionality 
+    Combines category, availability, and text search filters
+    Optimized with useMemo for better performance */
   const filteredMenuItems = useMemo(() => {
     return menuItems.filter(item => {
       const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
@@ -75,6 +221,7 @@ const HomeScreenG: React.FC = () => {
     });
   }, [menuItems, filterCategory, filterAvailability, searchQuery]);
 
+  // Reset all filters to their default state
   const resetFilters = () => {
     setFilterCategory('All');
     setFilterAvailability('All');
@@ -82,11 +229,14 @@ const HomeScreenG: React.FC = () => {
     setShowFilterModal(false);
   };
 
+  // Cart management functions
   const addToCart = (itemId: string) => setCartItems(prev => [...prev, itemId]);
   const removeFromCart = (itemId: string) => setCartItems(prev => prev.filter(id => id !== itemId));
   const isInCart = (itemId: string) => cartItems.includes(itemId);
 
-  /* Statistics */
+  /* Statistics Calculation
+    Computes various metrics about the menu for display
+    Uses useMemo to avoid recalculating on every render */
   const stats = useMemo(() => {
     const total = menuItems.length;
     const availableItems = menuItems.filter(item => item.available).length;
@@ -115,9 +265,58 @@ const HomeScreenG: React.FC = () => {
     return { total, availableItems, totalValue, avgPrice, minPrice, maxPrice, avgByCourse, mostPopularCourse, mostPopular };
   }, [menuItems]);
 
-  /* Menu Item Renderer */
+  /* Gallery Preview Component
+    Shows a preview of gallery images on the dashboard */
+  const GalleryPreview = () => {
+    const previewImages = [
+      { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
+      { id: '2', title: 'Chef in Action', image: require('../assets/gallery/chef-cooking.jpg'), description: 'Master chef preparing your meal' },
+      { id: '3', title: 'Fresh Ingredients', image: require('../assets/gallery/ingredients.jpg'), description: 'Daily fresh ingredients' },
+    ];
+
+    return (
+      <View style={styles.galleryPreviewContainer}>
+        <View style={styles.galleryPreviewHeader}>
+          <Text style={styles.sectionTitle}>Restaurant Gallery</Text>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => setActiveScreen('gallery')}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+            <Ionicons name="chevron-forward" size={16} color="#0557ef" />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.galleryPreviewRow}>
+            {previewImages.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.galleryPreviewItem}
+                onPress={() => setActiveScreen('gallery')}
+              >
+                <Image source={item.image} style={styles.galleryPreviewImage} />
+                <View style={styles.galleryPreviewInfo}>
+                  <Text style={styles.galleryPreviewTitle}>{item.title}</Text>
+                  <Text style={styles.galleryPreviewDescription}>{item.description}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
+
+  /* Menu Item Renderer with Image Display
+    Renders individual menu items with their images and details */
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.menuCard}>
+      {/* Display menu item image if available */}
+      {item.image && (
+        <Image source={item.image} style={styles.menuItemImage} />
+      )}
+
       <View style={styles.cardHeader}>
         <View style={styles.itemInfo}>
           <Text style={styles.itemName}>{item.name}</Text>
@@ -189,25 +388,35 @@ const HomeScreenG: React.FC = () => {
     </View>
   );
 
+  // Helper function to get the current screen title
   const getScreenTitle = () => {
-    const titles = { dashboard: 'Menu Explorer', menu: 'Full Menu', profile: 'My Profile', settings: 'Settings' };
+    const titles = {
+      dashboard: 'Menu Explorer',
+      menu: 'Full Menu',
+      gallery: 'Gallery',
+      profile: 'My Profile',
+      settings: 'Settings'
+    };
     return titles[activeScreen as keyof typeof titles] || 'Menu Explorer';
   };
 
+  // Navigation items configuration with gallery added
   const navItems = [
     { key: 'dashboard', icon: 'restaurant', label: 'Explore' },
     { key: 'menu', icon: 'book', label: 'Menu' },
+    { key: 'gallery', icon: 'images', label: 'Gallery' },
     { key: 'profile', icon: 'person', label: 'Profile' },
     { key: 'settings', icon: 'settings', label: 'Settings' },
   ];
 
-  /* Screen Content Renderer */
+  /* Screen Content Renderer
+    Handles rendering different screens based on activeScreen state */
   const renderScreenContent = () => {
     switch (activeScreen) {
       case 'dashboard':
         return (
           <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-            {/* Header */}
+            {/* Header Section */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <Image source={require('../assets/Logo(2).jpeg')} style={styles.logo} />
@@ -242,7 +451,7 @@ const HomeScreenG: React.FC = () => {
               )}
             </View>
 
-            {/* Active Filters */}
+            {/* Active Filters Display */}
             {(filterCategory !== 'All' || filterAvailability !== 'All') && (
               <View style={styles.activeFiltersContainer}>
                 <Text style={styles.activeFiltersTitle}>Active Filters:</Text>
@@ -272,7 +481,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             )}
 
-            {/* Quick Stats */}
+            {/* Quick Stats Overview */}
             <View style={styles.statsContainer}>
               <Text style={styles.sectionTitle}>Quick Overview</Text>
               <View style={styles.statsGrid}>
@@ -305,7 +514,7 @@ const HomeScreenG: React.FC = () => {
               </View>
             </View>
 
-            {/* Quick Actions */}
+            {/* Quick Actions Section */}
             <View style={styles.actionsContainer}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
               <View style={styles.actionsRow}>
@@ -313,9 +522,12 @@ const HomeScreenG: React.FC = () => {
                   <Ionicons name="filter" size={28} color="#fff" />
                   <Text style={styles.actionText}>Filter Items</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Ionicons name="star-outline" size={28} color="#fff" />
-                  <Text style={styles.actionText}>Favorites</Text>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => setActiveScreen('gallery')}
+                >
+                  <Ionicons name="images-outline" size={28} color="#fff" />
+                  <Text style={styles.actionText}>Gallery</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
                   <Ionicons name="time-outline" size={28} color="#fff" />
@@ -324,11 +536,15 @@ const HomeScreenG: React.FC = () => {
               </View>
             </View>
 
-            {/* Most Popular Item */}
+            {/* Most Popular Item Highlight */}
             {stats.mostPopular && (
               <View style={styles.featuredContainer}>
                 <Text style={styles.sectionTitle}>Most Popular</Text>
                 <View style={styles.featuredCard}>
+                  {/* Display image for most popular item */}
+                  {stats.mostPopular.image && (
+                    <Image source={stats.mostPopular.image} style={styles.featuredImage} />
+                  )}
                   <View style={styles.featuredHeader}>
                     <Text style={styles.featuredName}>{stats.mostPopular.name}</Text>
                     <View style={styles.featuredBadge}>
@@ -378,7 +594,10 @@ const HomeScreenG: React.FC = () => {
               )}
             </View>
 
-            {/* Cart Summary */}
+            {/* Gallery Preview Section */}
+            <GalleryPreview />
+
+            {/* Cart Summary Section */}
             {cartItems.length > 0 && (
               <View style={styles.cartSummary}>
                 <Text style={styles.cartSummaryTitle}>Your Cart</Text>
@@ -407,6 +626,9 @@ const HomeScreenG: React.FC = () => {
             </View>
           </View>
         );
+
+      case 'gallery':
+        return <GalleryScreenG />;
 
       case 'profile':
         return (
@@ -504,7 +726,7 @@ const HomeScreenG: React.FC = () => {
           ))}
         </View>
 
-        {/* Filter Modal */}
+        {/* Filter Modal for menu item filtering */}
         <Modal animationType="slide" transparent visible={showFilterModal} onRequestClose={() => setShowFilterModal(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -565,7 +787,7 @@ const HomeScreenG: React.FC = () => {
   );
 };
 
-// Optimized StyleSheet
+// Optimized StyleSheet with new gallery styles
 const styles = StyleSheet.create({
   // Layout
   gradient: { flex: 1 },
@@ -630,11 +852,13 @@ const styles = StyleSheet.create({
   resetFiltersButton: { backgroundColor: '#0557ef', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
   resetFiltersText: { color: '#fff', fontWeight: '600', fontSize: 14 },
 
-  // Menu Cards
+  // Menu Cards with Image Support
   menuCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12,
     shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 8, elevation: 3
   },
+  // Style for menu item images
+  menuItemImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: 12 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   itemInfo: { flex: 1 },
   itemName: { fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 6 },
@@ -663,12 +887,14 @@ const styles = StyleSheet.create({
   disabledButton: { backgroundColor: '#ccc' },
   cartButtonText: { color: '#fff', marginLeft: 6, fontWeight: '600', fontSize: 14 },
 
-  // Featured Item
+  // Featured Item with Image
   featuredContainer: { padding: 16 },
   featuredCard: {
     backgroundColor: '#fff', borderRadius: 12, padding: 16,
     shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5, elevation: 3
   },
+  // Style for featured item image
+  featuredImage: { width: '100%', height: 150, borderRadius: 8, marginBottom: 12 },
   featuredHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   featuredName: { fontSize: 18, fontWeight: '700', color: '#222' },
   featuredBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF9E6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
@@ -749,6 +975,67 @@ const styles = StyleSheet.create({
   },
   settingText: { flex: 1, fontSize: 16, color: '#333', marginLeft: 12 },
   settingStatus: { fontSize: 14, color: '#666', marginRight: 8 },
+
+  // Gallery Preview Styles
+  galleryPreviewContainer: { padding: 16 },
+  galleryPreviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  viewAllButton: { flexDirection: 'row', alignItems: 'center' },
+  viewAllText: { color: '#0557ef', fontWeight: '600', marginRight: 4 },
+  galleryPreviewRow: { flexDirection: 'row' },
+  galleryPreviewItem: {
+    width: 200,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginRight: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 3
+  },
+  galleryPreviewImage: { width: '100%', height: 120 },
+  galleryPreviewInfo: { padding: 12 },
+  galleryPreviewTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4 },
+  galleryPreviewDescription: { fontSize: 12, color: '#666' },
+
+  // Full Gallery & Modal Styles
+  galleryGrid: { padding: 8 },
+  galleryRow: { justifyContent: 'space-between', marginBottom: 8 },
+  galleryItem: {
+    width: '48%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden',
+    shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5, elevation: 3, marginBottom: 8
+  },
+  galleryImage: { width: '100%', height: 120 },
+  galleryInfo: { padding: 12 },
+  galleryTitle: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 4 },
+  galleryDescription: { fontSize: 12, color: '#666', marginBottom: 8 },
+  galleryCategoryTag: {
+    alignSelf: 'flex-start', backgroundColor: '#f0f4ff',
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6
+  },
+  galleryCategoryText: { fontSize: 10, fontWeight: '500', color: '#0557ef' },
+
+  imageModalContainer: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center'
+  },
+  imageModalContent: { width: '90%', backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden' },
+  modalImage: { width: '100%', height: 300 },
+  modalImageInfo: { padding: 20 },
+  modalImageTitle: { fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 8 },
+  modalImageDescription: {
+    fontSize: 16, color: '#666', marginBottom: 12, lineHeight: 22
+  },
+  modalCategoryTag: {
+    alignSelf: 'flex-start', backgroundColor: '#0557ef',
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8
+  },
+  modalCategoryText: { fontSize: 12, fontWeight: '600', color: '#fff' },
+  closeModalButton: {
+    position: 'absolute', top: 16, right: 16, backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20, width: 40, height: 40, justifyContent: 'center', alignItems: 'center'
+  }
 });
 
 export default HomeScreenG;
