@@ -16,7 +16,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'H
 type Props = { navigation: HomeScreenNavigationProp };
 
 /* Menu management interfaces */
-type Category = "Starter" | "Main" | "Dessert" ;
+type Category = "Starter" | "Main" | "Dessert";
 
 interface MenuItem {
   id: string;
@@ -74,30 +74,30 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   // Menu management state
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     {
-    id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
-    ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
-    image: require('../assets/menu/tomato soup.jpg')
-  },
-  {
-    id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
-    ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
-    image: require('../assets/menu/grilled chicken.jpg')
-  },
-  {
-    id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
-    ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
-    image: require('../assets/menu/chocolate mousse.jpg')
-  },
-  {
-    id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
-    ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
-    image: require('../assets/menu/caesar salad.jpg')
-  },
-  {
-    id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
-    ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
-    image: require('../assets/menu/seafood platter.jpg')
-  },
+      id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
+      ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
+      image: require('../assets/menu/tomato soup.jpg')
+    },
+    {
+      id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
+      ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
+      image: require('../assets/menu/grilled chicken.jpg')
+    },
+    {
+      id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
+      ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
+      image: require('../assets/menu/chocolate mousse.jpg')
+    },
+    {
+      id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
+      ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
+      image: require('../assets/menu/caesar salad.jpg')
+    },
+    {
+      id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
+      ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
+      image: require('../assets/menu/seafood platter.jpg')
+    },
   ]);
 
   // Form state
@@ -172,7 +172,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   const pickImage = async () => {
     // Request permission to access the media library
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (permissionResult.granted === false) {
       Alert.alert("Permission Required", "Permission to access camera roll is required to add images.");
       return;
@@ -258,7 +258,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       {item.image && (
         <Image source={item.image} style={styles.menuItemImage} />
       )}
-      
+
       <View style={styles.cardHeader}>
         <View style={styles.itemInfo}>
           <Text style={styles.itemName}>{item.name}</Text>
@@ -627,8 +627,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   {newItemImage ? (
                     <View style={styles.selectedImageContainer}>
                       <Image source={{ uri: newItemImage }} style={styles.selectedImage} />
-                      <TouchableOpacity 
-                        style={styles.changeImageButton} 
+                      <TouchableOpacity
+                        style={styles.changeImageButton}
                         onPress={pickImage}
                       >
                         <Text style={styles.changeImageText}>Change Image</Text>
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
   // Navigation
   bottomNav: { flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingVertical: 8 },
   navItem: { flex: 1, alignItems: 'center', paddingVertical: 8 },
-  activeNavItem: { },
+  activeNavItem: {},
   navText: { fontSize: 12, color: '#666', marginTop: 4 },
   activeNavText: { color: '#0557ef', fontWeight: '600' },
 
@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
   textArea: { minHeight: 80, textAlignVertical: 'top' },
   inputLabel: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 8 },
-  
+
   // Image Selection Styles
   imageSelectionContainer: { marginBottom: 16 },
   addImageButton: { borderWidth: 2, borderColor: '#0557ef', borderStyle: 'dashed', borderRadius: 8, padding: 20, alignItems: 'center', justifyContent: 'center' },
