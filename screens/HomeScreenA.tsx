@@ -9,13 +9,13 @@ import { RootStackParamList } from '../App';
 import MenuManagementScreen from './MenuManagementScreen';
 import ProfileScreen from './ProfileScreen';
 import SettingsScreen from './SettingsScreen';
-// Import ImagePicker for selecting images from device gallery
+// Import ImagePicker for selecting images from your devices gallery
 import * as ImagePicker from 'expo-image-picker';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomeA'>;
 type Props = { navigation: HomeScreenNavigationProp };
 
-/* Menu management interfaces */
+/* Menu management interfaces with image support  */
 type Category = "Starter" | "Main" | "Dessert";
 
 interface MenuItem {
@@ -36,7 +36,7 @@ interface MenuItem {
 
 const categories: Category[] = ["Starter", "Main", "Dessert"];
 
-/* Gallery Screen Component */
+/* Gallery Screen Component, it displays a grid of images about the restaurant */
 const GalleryScreen: React.FC = () => {
   const galleryImages = [
     { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
@@ -47,6 +47,7 @@ const GalleryScreen: React.FC = () => {
     { id: '6', title: 'Wine Collection', image: require('../assets/gallery/wine.jpg'), description: 'Premium wine selection' },
   ];
 
+  // Styles for the gallery screen
   return (
     <View style={styles.screenContainer}>
       <Text style={styles.screenTitle}>Restaurant Gallery</Text>
@@ -69,9 +70,9 @@ const GalleryScreen: React.FC = () => {
   );
 };
 
-/* Admin Dashboard */
+/* Admin Dashboard, it allows the admin to manage the menu */
 const HomeScreenA: React.FC<Props> = ({ navigation }) => {
-  // Menu management state
+  // Menu management state, shows all the hardcoded menu items initially
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     {
       id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
@@ -100,7 +101,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     },
   ]);
 
-  // Form state
+  // Form state, used when adding a new menu item
   const [newItemName, setNewItemName] = useState("");
   const [newItemDesc, setNewItemDesc] = useState("");
   const [newItemCategory, setNewItemCategory] = useState<Category>("Starter");
@@ -111,16 +112,16 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   const [newItemSpiceLevel, setNewItemSpiceLevel] = useState<0 | 1 | 2 | 3>(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeScreen, setActiveScreen] = useState('dashboard');
-  // State for storing the selected image URI when adding a new menu item
+  // State for storing the selected image, when adding a new menu item
   const [newItemImage, setNewItemImage] = useState<string | null>(null);
 
-  // Filter state
+  // Filter state, used for filtering menu items
   const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
   const [filterAvailability, setFilterAvailability] = useState<'All' | 'Available' | 'Unavailable'>('All');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  /* Filter Functionality */
+  /* Filter Functionality, filters the menu items based on the selected filters */
   const filteredMenuItems = useMemo(() => {
     return menuItems.filter(item => {
       const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
@@ -142,7 +143,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     setShowFilterModal(false);
   };
 
-  /* Menu Statistics */
+  /* Menu Statistics, calculates various statistics based on the menu items */
   const stats = useMemo(() => {
     const total = menuItems.length;
     const availableItems = menuItems.filter(item => item.available).length;
@@ -168,9 +169,9 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     return { total, availableItems, totalRevenue, avgPrice, avgByCourse, min, max, mostPopularCourse };
   }, [menuItems]);
 
-  /* Function to pick an image from device gallery */
+  /* Function to pick an image from device gallery and set it as the new item image */
   const pickImage = async () => {
-    // Request permission to access the media library
+    // Request permission to access the media library and process the selected image
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
@@ -178,7 +179,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    // Launch image picker
+    // Launch image picker with configuration options
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -186,13 +187,13 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       quality: 0.8,
     });
 
-    // If image was selected successfully, set the image URI
+    // If image was selected successfully, update the state
     if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
       setNewItemImage(pickerResult.assets[0].uri);
     }
   };
 
-  /* Menu Management Functions */
+  /* Menu Management Functions with new features */
   const addMenuItem = () => {
     if (!newItemName || !newItemDesc || !newItemPrice) {
       Alert.alert("Error", "Please fill out all required fields!");
@@ -205,7 +206,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    // Create new menu item with optional image
+    // Create new menu item with optional image 
     const newMenuItem: MenuItem = {
       id: Date.now().toString(),
       name: newItemName,
@@ -236,7 +237,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     setNewItemPrepTime("");
     setNewItemCalories("");
     setNewItemSpiceLevel(0);
-    // Reset the image selection when form is cleared
+    // Reset the image selection when form is cleared 
     setNewItemImage(null);
   };
 
@@ -291,6 +292,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.ingredients}>Ingredients: {item.ingredients.join(', ')}</Text>
         )}
 
+        {/* Display dietary tags */}
         {item.dietaryTags.length > 0 && (
           <View style={styles.tagsContainer}>
             {item.dietaryTags.map(tag => (
@@ -302,6 +304,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
         )}
       </View>
 
+      {/* Availability Toggle and Action Buttons */}
       <View style={styles.cardActions}>
         <View style={styles.availabilityContainer}>
           <Switch
@@ -315,6 +318,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           </Text>
         </View>
 
+        {/* Display edit and delete buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity style={styles.editButton}>
             <Ionicons name="create-outline" size={18} color="#fff" />
@@ -327,7 +331,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     </View>
   );
 
-  /* Gallery Preview Component */
+  /* Gallery Preview Component, Shows a preview of gallery images on the dashboard */
   const GalleryPreview = () => {
     const galleryImages = [
       { id: '1', title: 'Restaurant Interior', image: require('../assets/gallery/interior.jpg'), description: 'Our cozy dining area' },
@@ -348,6 +352,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+        {/* Scrollable row of gallery images */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.galleryPreviewRow}>
             {galleryImages.map((item) => (
@@ -365,7 +370,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     );
   };
 
-  /* Screen Content Renderer */
+  /* Screen Content Renderer for different screens */
   const renderScreenContent = () => {
     switch (activeScreen) {
       case 'dashboard':
@@ -386,7 +391,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Search and Filter Bar */}
+            {/* Search bar and Filter Bar*/}
             <View style={styles.searchContainer}>
               <Ionicons name="search" size={20} color="#666" />
               <TextInput
@@ -404,7 +409,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Active Filters Display */}
+            {/* Active Filters Display and Clear button */}
             {(filterCategory !== 'All' || filterAvailability !== 'All' || searchQuery) && (
               <View style={styles.activeFiltersContainer}>
                 <Text style={styles.activeFiltersTitle}>Active Filters:</Text>
@@ -442,7 +447,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
 
-            {/* Quick Stats */}
+            {/* Quick Stats, which displays total items, available items, and average prices by course */}
             <View style={styles.statsContainer}>
               <Text style={styles.sectionTitle}>Quick Overview</Text>
               <View style={styles.statsGrid}>
@@ -475,7 +480,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Quick Actions */}
+            {/* Quick Actions, which includes adding a new item, accessing the gallery, and accessing analytics */}
             <View style={styles.actionsContainer}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
               <View style={styles.actionsRow}>
@@ -497,7 +502,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Menu Items */}
+            {/* Menu Items, which displays the filtered menu items */}
             <View style={styles.menuContainer}>
               <View style={styles.listHeader}>
                 <Text style={styles.sectionTitle}>
@@ -534,7 +539,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
             {/* Gallery Preview */}
             <GalleryPreview />
 
-            {/* Recent Activity */}
+            {/* Recent Activity displays a list of recent activity */}
             <View style={styles.activityContainer}>
               <Text style={styles.sectionTitle}>Recent Activity</Text>
               <View style={styles.activityList}>
@@ -562,6 +567,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  // Helper function to get the current screen title
   const getScreenTitle = () => {
     const titles = {
       dashboard: 'Dashboard',
@@ -573,6 +579,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     return titles[activeScreen as keyof typeof titles] || 'Dashboard';
   };
 
+  // Navigation items
   const navItems = [
     { key: 'dashboard', icon: 'restaurant', label: 'Dashboard' },
     { key: 'gallery', icon: 'images', label: 'Gallery' },
@@ -581,6 +588,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
     { key: 'settings', icon: 'settings', label: 'Settings' },
   ];
 
+  // Main render
   return (
     <LinearGradient colors={['#ffffff', '#f0f4ff']} style={styles.gradient}>
       <SafeAreaView style={styles.container}>
@@ -589,7 +597,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
         </View>
 
         {renderScreenContent()}
-
+        {/* Bottom Navigation Bar */}
         <View style={styles.bottomNav}>
           {navItems.map((navItem) => (
             <TouchableOpacity
@@ -609,7 +617,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           ))}
         </View>
 
-        {/* Add Item Modal */}
+        {/* Add Item Modal, which allows users to add new menu items */}
         <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -642,6 +650,8 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   )}
                 </View>
 
+                {/* Item Details */}
+                <Text style={styles.inputLabel}>Item Details</Text>
                 <TextInput style={styles.input} placeholder="Item Name" value={newItemName} onChangeText={setNewItemName} />
                 <TextInput style={[styles.input, styles.textArea]} placeholder="Description" value={newItemDesc} onChangeText={setNewItemDesc} multiline numberOfLines={3} />
 
@@ -660,6 +670,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   ))}
                 </View>
 
+                {/* Price and Other Details */}
                 <TextInput style={styles.input} placeholder="Price (R)" value={newItemPrice} onChangeText={setNewItemPrice} keyboardType="numeric" />
                 <TextInput style={[styles.input, styles.textArea]} placeholder="Ingredients (use a comma as a separator)" value={newItemIngredients} onChangeText={setNewItemIngredients} multiline numberOfLines={2} />
                 <TextInput style={styles.input} placeholder="Preparation Time (minutes)" value={newItemPrepTime} onChangeText={setNewItemPrepTime} keyboardType="numeric" />
@@ -691,7 +702,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
           </View>
         </Modal>
 
-        {/* Filter Modal */}
+        {/* Filter Modal, which allows users to filter menu items */}
         <Modal animationType="slide" transparent visible={showFilterModal} onRequestClose={() => setShowFilterModal(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -727,7 +738,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   ))}
                 </ScrollView>
 
-                {/* Availability Filter */}
+                {/* Availability Filter, which allows users to filter menu items by availability */}
                 <Text style={styles.inputLabel}>Availability</Text>
                 <View style={styles.availabilityFilterRow}>
                   {(['All', 'Available', 'Unavailable'] as const).map(availability => (
@@ -743,7 +754,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
                   ))}
                 </View>
 
-                {/* Action Buttons */}
+                {/* Action Buttons, which allows users to apply or reset filters */}
                 <View style={styles.filterActions}>
                   <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
                     <Text style={styles.resetButtonText}>Reset Filters</Text>
@@ -761,7 +772,7 @@ const HomeScreenA: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-// Updated StyleSheet with new styles for images
+// StyleSheet
 const styles = StyleSheet.create({
   // Layout
   gradient: { flex: 1 },
