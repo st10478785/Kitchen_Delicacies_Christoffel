@@ -1,12 +1,15 @@
-// MenuManagementScreen.tsx - Comprehensive Menu Management
+// MenuManagementScreen.tsx : Comprehensive Menu Management
+// Imports
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, TextInput, Modal, Alert, ScrollView, Pressable, Switch } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, TextInput, Modal, Alert, ScrollView, Pressable, Switch, Image, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+// Import ImagePicker for selecting images from device gallery
+import * as ImagePicker from 'expo-image-picker';
 
 /* Menu Management Interfaces
-  Defines the structure for menu items and categories */
-type Category = "Starter" | "Main" | "Dessert" ;
+  Defines the structure for menu items and categories with image support */
+type Category = "Starter" | "Main" | "Dessert";
 
 interface MenuItem {
     id: string;
@@ -21,45 +24,55 @@ interface MenuItem {
     preparationTime: number; // in minutes
     calories?: number;
     spiceLevel: 0 | 1 | 2 | 3; // 0=None, 1=Mild, 2=Medium, 3=Spicy
-    imageUrl?: string;
+    // Update local assets and gallery images
+    image?: ImageSourcePropType;
 }
 
 /* Menu Management Screen Features:
   Add, edit, delete menu items
   Filter and search functionality
-  Detailed item management with additional attributes */
+  Detailed item management with additional attributes
+  Image selection from gallery */
 const MenuManagementScreen: React.FC = () => {
-    // Menu items state with sample data
+    // Menu items state with sample data including images
     const [menuItems, setMenuItems] = useState<MenuItem[]>([
         {
             id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
-            ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0
+            ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
+            // Add image reference for existing menu items
+            image: require('../assets/menu/tomato soup.jpg')
         },
         {
             id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
-            ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1
+            ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
+            image: require('../assets/menu/grilled chicken.jpg')
         },
         {
             id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
-            ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0
+            ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
+            image: require('../assets/menu/chocolate mousse.jpg')
         },
         {
             id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
-            ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0
+            ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
+            image: require('../assets/menu/caesar salad.jpg')
         },
         {
             id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
-            ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2
+            ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
+            image: require('../assets/menu/seafood platter.jpg')
         },
     ]);
 
-    // UI state management
+    // UI state management for modals, editing, filtering, and search
     const [modalVisible, setModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
     const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
     const [searchQuery, setSearchQuery] = useState('');
+    // State for storing the selected image for adding/editing menu items
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    // Form state for add/edit operations
+    // Form state for add/edit operations with image support
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -74,8 +87,34 @@ const MenuManagementScreen: React.FC = () => {
     });
 
     // Available categories and dietary options
-    const categories: Category[] = ["Starter", "Main", "Dessert", ];
+    const categories: Category[] = ["Starter", "Main", "Dessert",];
     const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free', 'Keto', 'Low-Carb'];
+
+    /* Image Picker Function
+      Handles selecting images from device gallery
+      Requests permissions and processes the selected image */
+    const pickImage = async () => {
+        // Request permission to access the media library
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert("Permission Required", "Permission to access camera roll is required to add images.");
+            return;
+        }
+
+        // Launch image picker with configuration options
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+        });
+
+        // Process the selected image if not cancelled
+        if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+            setSelectedImage(pickerResult.assets[0].uri);
+        }
+    };
 
     /* Filter and Search Functionality
       Combines category filtering with text search
@@ -105,6 +144,8 @@ const MenuManagementScreen: React.FC = () => {
             available: true
         });
         setEditingItem(null);
+        // Reset selected image when form is cleared
+        setSelectedImage(null);
     };
 
     const openAddModal = () => {
@@ -126,17 +167,19 @@ const MenuManagementScreen: React.FC = () => {
             available: item.available
         });
         setEditingItem(item);
+        // Don't reset selected image when editing to preserve existing image
         setModalVisible(true);
     };
 
     /* Save Item Function
-      Validates input and saves new or updated menu items */
+      Validates input and saves new or updated menu items with images */
     const handleSaveItem = () => {
         if (!formData.name || !formData.description || !formData.price) {
             Alert.alert('Error', 'Please fill in all required fields');
             return;
         }
 
+        // Create new menu item with image support
         const newItem: MenuItem = {
             id: editingItem ? editingItem.id : Date.now().toString(),
             name: formData.name,
@@ -149,7 +192,9 @@ const MenuManagementScreen: React.FC = () => {
             preparationTime: parseInt(formData.preparationTime) || 15,
             calories: formData.calories ? parseInt(formData.calories) : undefined,
             spiceLevel: formData.spiceLevel,
-            popularity: editingItem ? editingItem.popularity : 4.0
+            popularity: editingItem ? editingItem.popularity : 4.0,
+            // Include selected image if available, otherwise preserve existing image when editing
+            image: selectedImage ? { uri: selectedImage } : (editingItem ? editingItem.image : undefined)
         };
 
         if (editingItem) {
@@ -189,10 +234,15 @@ const MenuManagementScreen: React.FC = () => {
         );
     };
 
-    /* Menu Item Renderer
-      Renders individual menu items in the list */
+    /* Menu Item Renderer with Image Display
+      Renders individual menu items in the list with their images */
     const renderMenuItem = ({ item }: { item: MenuItem }) => (
         <View style={styles.menuCard}>
+            {/* Display menu item image if available */}
+            {item.image && (
+                <Image source={item.image} style={styles.menuItemImage} />
+            )}
+
             <View style={styles.cardHeader}>
                 <View style={styles.itemInfo}>
                     <Text style={styles.itemName}>{item.name}</Text>
@@ -240,6 +290,7 @@ const MenuManagementScreen: React.FC = () => {
                 )}
             </View>
 
+            {/* Actions for each menu item */}
             <View style={styles.cardActions}>
                 <View style={styles.availabilityContainer}>
                     <Switch
@@ -274,6 +325,7 @@ const MenuManagementScreen: React.FC = () => {
         </View>
     );
 
+    /* Render the Menu Management Screen */
     return (
         <LinearGradient colors={['#ffffff', '#f0f4ff']} style={styles.gradient}>
             <SafeAreaView style={styles.container}>
@@ -339,7 +391,7 @@ const MenuManagementScreen: React.FC = () => {
                     />
                 </View>
 
-                {/* Add or Edit Modal */}
+                {/* Add or Edit Modal with Image Selection */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -358,6 +410,31 @@ const MenuManagementScreen: React.FC = () => {
                             </View>
 
                             <ScrollView style={styles.modalBody}>
+                                {/* Image Selection Section */}
+                                <Text style={styles.inputLabel}>Item Image (Optional)</Text>
+                                <View style={styles.imageSelectionContainer}>
+                                    {selectedImage || (editingItem && editingItem.image) ? (
+                                        <View style={styles.selectedImageContainer}>
+                                            <Image
+                                                source={selectedImage ? { uri: selectedImage } : (editingItem?.image as any)}
+                                                style={styles.selectedImage}
+                                            />
+                                            <TouchableOpacity
+                                                style={styles.changeImageButton}
+                                                onPress={pickImage}
+                                            >
+                                                <Text style={styles.changeImageText}>Change Image</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ) : (
+                                        <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
+                                            <Ionicons name="camera-outline" size={32} color="#0557ef" />
+                                            <Text style={styles.addImageText}>Add Image from Gallery</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+
+                                {/* Form Fields */}
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Item Name *"
@@ -365,6 +442,7 @@ const MenuManagementScreen: React.FC = () => {
                                     onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
                                 />
 
+                                {/* Description Text Area */}
                                 <TextInput
                                     style={[styles.input, styles.textArea]}
                                     placeholder="Description *"
@@ -374,6 +452,7 @@ const MenuManagementScreen: React.FC = () => {
                                     numberOfLines={3}
                                 />
 
+                                {/* Category Selection */}
                                 <Text style={styles.inputLabel}>Category *</Text>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryRow}>
                                     {categories.map(category => (
@@ -470,7 +549,7 @@ const MenuManagementScreen: React.FC = () => {
     );
 };
 
-// StyleSheet - Consolidated without duplicates
+// StyleSheet - Consolidated without duplicates with new image styles
 const styles = StyleSheet.create({
     // General Layout Styles
     gradient: {
@@ -578,7 +657,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
 
-    // Menu Card Styles
+    // Menu Card Styles with Image Support
     menuCard: {
         backgroundColor: '#fff',
         borderRadius: 12,
@@ -589,6 +668,13 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 8,
         elevation: 3,
+    },
+    // Style for menu item images in list
+    menuItemImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 12,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -749,6 +835,46 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
         marginBottom: 8,
+    },
+
+    // Image Selection Styles
+    imageSelectionContainer: {
+        marginBottom: 16,
+    },
+    addImageButton: {
+        borderWidth: 2,
+        borderColor: '#0557ef',
+        borderStyle: 'dashed',
+        borderRadius: 8,
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    addImageText: {
+        color: '#0557ef',
+        fontSize: 14,
+        fontWeight: '600',
+        marginTop: 8,
+    },
+    selectedImageContainer: {
+        alignItems: 'center',
+    },
+    selectedImage: {
+        width: '100%',
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 12,
+    },
+    changeImageButton: {
+        backgroundColor: '#0557ef',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+    },
+    changeImageText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
     },
 
     // Category Selection Styles
