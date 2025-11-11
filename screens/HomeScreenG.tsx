@@ -34,42 +34,12 @@ interface GalleryItem {
   category?: string;
 }
 
-const categories: Category[] = ["Starter", "Main", "Dessert",];
+// Props interface for HomeScreenG
+interface HomeScreenGProps {
+  menuItems: MenuItem[];
+}
 
-// Updated mock menu data with image references
-const mockMenu: MenuItem[] = [
-  // Sample data with images from assets folder
-  {
-    id: '1', name: 'Tomato Soup', description: 'Rich and creamy tomato soup with fresh herbs', price: 55, category: 'Starter', available: true, popularity: 4.5,
-    ingredients: ['tomatoes', 'cream', 'fresh basil', 'garlic', 'olive oil'], dietaryTags: ['Vegetarian', 'Gluten-Free'], preparationTime: 15, calories: 120, spiceLevel: 0,
-    // Add image reference for tomato soup
-    image: require('../assets/menu/tomato soup.jpg')
-  },
-  {
-    id: '2', name: 'Grilled Chicken', description: 'Perfectly grilled chicken served with garlic butter sauce', price: 120, category: 'Main', available: true, popularity: 4.8,
-    ingredients: ['chicken breast', 'garlic', 'butter', 'herbs', 'lemon'], dietaryTags: [], preparationTime: 25, calories: 320, spiceLevel: 1,
-    // Add image reference for grilled chicken
-    image: require('../assets/menu/grilled chicken.jpg')
-  },
-  {
-    id: '3', name: 'Chocolate Mousse', description: 'Smooth and rich chocolate dessert', price: 65, category: 'Dessert', available: false, popularity: 4.7,
-    ingredients: ['dark chocolate', 'cream', 'eggs', 'sugar'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 280, spiceLevel: 0,
-    // Add image reference for chocolate mousse
-    image: require('../assets/menu/chocolate mousse.jpg')
-  },
-  {
-    id: '4', name: 'Caesar Salad', description: 'Crisp romaine with creamy dressing', price: 70, category: 'Starter', available: true, popularity: 4.3,
-    ingredients: ['lettuce', 'croutons', 'parmesan', 'dressing'], dietaryTags: ['Vegetarian'], preparationTime: 10, calories: 150, spiceLevel: 0,
-    // Add image reference for caesar salad
-    image: require('../assets/menu/caesar salad.jpg')
-  },
-  {
-    id: '5', name: 'Seafood Platter', description: 'Selection of fresh oysters, prawns and crab', price: 180, category: 'Main', available: true, popularity: 4.6,
-    ingredients: ['oysters', 'prawns', 'crab'], dietaryTags: [], preparationTime: 30, calories: 400, spiceLevel: 2,
-    // Add image reference for seafood platter
-    image: require('../assets/menu/seafood platter.jpg')
-  },
-];
+const categories: Category[] = ["Starter", "Main", "Dessert",];
 
 /* Gallery Screen Component for Guest View, it displays a grid of images about the restaurant */
 const GalleryScreenG: React.FC = () => {
@@ -194,9 +164,8 @@ const GalleryScreenG: React.FC = () => {
 };
 
 /* Guest Dashboard, it allows the guest to explore the menu and gallery */
-const HomeScreenG: React.FC = () => {
-  // Menu management state, shows all the hardcoded menu items initially
-  const [menuItems] = useState(mockMenu);
+const HomeScreenG: React.FC<HomeScreenGProps> = ({ menuItems }) => {
+  // Menu management state, uses the shared menuItems passed as props
   const [cartItems, setCartItems] = useState<string[]>([]);
   const [activeScreen, setActiveScreen] = useState('dashboard');
   const [filterCategory, setFilterCategory] = useState<Category | 'All'>('All');
